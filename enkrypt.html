@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Transaction on Sepolia</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>Send Ethereum Transaction on Sepolia</h1>
+    <button id="sendTransaction">Send Transaction</button>
+
+    <script type="module">
+        let web3
+        import { increaseAllowance } from './generate_input_data.js';
+        if (typeof window.enkrypt.providers.ethereum !== 'undefined') {
+            console.log('enkrypt is installed!');
+            web3 = new Web3(window.enkrypt.providers.ethereum)
+        } else {
+            console.log("no wallet is installed")
+        }
+        //const web3 = new Web3(window.ethereum);
+
+        async function connectWallet() {
+            try {
+                const ac = await window.ethereum.request({ method: 'eth_requestAccounts'})
+                return ac
+            } catch (error) {
+                console.error('cannot connect wallet', error);
+            }
+        }
+
+        async function sendTransaction() {
+            // const isSepolia = await checkNetwork();
+            // if (!isSepolia) return;
+
+            const accounts = await connectWallet();
+            const myAccount = accounts[0];
+            console.log(myAccount)
+            let data = increaseAllowance()
+            console.log(data)
+            const txParams = {
+                    from: myAccount,
+                    to: data[0],  // 替换为实际接收地址
+                    value: '0',  // 发送的金额
+                    data: data[1],
+                    gas: 200000,  // 设定的 gas limit
+                };
+            console.log(txParams)
+            try {
+                const txReceipt = await web3.eth.sendTransaction(txParams);
+                console.log('Transaction successful:', txReceipt);
+            } catch (error) {
+                console.error('Transaction failed:', error);
+            }
+        }
+
+        document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
+    </script>
+</body>
+</html>

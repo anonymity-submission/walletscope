@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ethereum Transaction Example</title>
+  <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+</head>
+<body>
+  <h1>Ethereum Transaction Example</h1>
+
+  <button onclick="connectWallet()">Connect Wallet</button>
+  <button onclick="sendTransaction()">Send Transaction</button>
+
+  <p id="status"></p>
+
+  <script>
+    let provider;
+    let signer;
+
+    async function connectWallet() {
+      if (typeof window.ethereum !== 'undefined') {
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        signer = provider.getSigner();
+        document.getElementById('status').innerHTML = 'Wallet connected';
+      } else {
+        document.getElementById('status').innerHTML = 'Please install a wallet like MetaMask to use this feature.';
+      }
+    }
+
+    async function sendTransaction() {
+      if (signer) {
+        const tx = {
+          to: '0x943e833c219a60242079b2BeeCf2B5251126Dad1', // replace with recipient address
+          value: ethers.utils.parseEther('1'), // amount to send in ETH
+          gasLimit: 21000, // gas limit for the transaction
+          gasPrice: await provider.getGasPrice() // get current gas price
+        };
+
+        try {
+          const txResponse = await ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [tx],
+          });
+          console.log('Transaction sent:', txResponse);
+          document.getElementById('status').innerHTML = 'Transaction sent: ' + txResponse;
+        } catch (error) {
+          console.error('Error sending transaction:', error);
+          document.getElementById('status').innerHTML = 'Error sending transaction: ' + error.message;
+        }
+      } else {
+        document.getElementById('status').innerHTML = 'Please connect your wallet first.';
+      }
+    }
+  </script>
+</body>
+</html>

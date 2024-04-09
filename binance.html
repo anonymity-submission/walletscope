@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Transaction on Sepolia</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@binance-chain/javascript-sdk@6.0.4/dist/index.min.js"></script>
+</head>
+<body>
+    <h1>Send Ethereum Transaction on Sepolia</h1>
+    <button id="connectWallet">Connect Wallet</button>
+    <h1>Send Ethereum Transaction on Sepolia</h1>
+    <button id="sendTransaction">Send Transaction</button>
+
+    <script type="module">
+        let web3
+        let ac
+        import { increaseAllowance } from './generate_input_data.js';
+        if (typeof window.BinanceChain !== 'undefined') {
+            console.log('Binance Chain Wallet is installed!');
+        } else {
+            console.log('Please install the Binance Chain Wallet extension.');
+        }
+
+async function connectWallet() {
+    try {
+        if (typeof window.BinanceChain.isTrust == 'undefined'){
+            await window.BinanceChain.enable();
+            web3 = new Web3(window.BinanceChain)
+            ac = await window.BinanceChain.request({ method: 'eth_requestAccounts' })
+        } else {
+            web3 = new Web3(window.TrustBinanceChain)
+            ac = await window.TrustBinanceChain.requestAccounts()
+        }
+        console.log(ac)
+        return ac
+    } catch (error) {
+        console.error('connect wallet failed');
+        throw error; // 抛出错误以通知调用方连接失败
+    }
+}
+
+async function sendTransaction() {
+    try {
+        const accounts = await connectWallet();
+        const myAccount = accounts[0];        
+        let data = increaseAllowance()
+        const txParams = {
+            from: myAccount,
+            to: '0x55d398326f99059ff775485246999027b3197955',
+            value: '0',
+            data: '0x095ea7b30000000000000000000000007858abd0c344f6564932afd8417950fc35dfdf810000000000000000000000000000000000000000000000000000000000000001',
+            gas: "66656"
+        };
+        console.log(web3)
+        const txHash = await web3.eth.sendTransaction({txParams})
+        // const txHash = await BinanceChain.request({
+        //     method: 'eth_sendTransaction',
+        //     params: txParams,
+        // });
+        console.log('Transaction sent:', txHash);
+    } catch (error) {
+        console.error('Transaction failed:', error);
+    }
+}
+
+document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
+    </script>
+</body>
+</html>

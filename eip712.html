@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>EIP-712 Signature Example</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/eth-sig-util@3.0.1/dist/index.js"></script>
+</head>
+<body>
+  <h1>EIP-712 Signature Example</h1>
+  <button onclick="signEIP712Transaction()">Sign Transaction</button>
+
+  <script>
+    // 设置 Web3 提供者为 MetaMask
+    const web3 = new Web3(Web3.givenProvider);
+
+    // EIP-712 合约地址
+    const contractAddress = "0xb596ed2A9edEE1F2300bC4Fe8AD809c16a42b407";
+    const verifyNum = '1036693101413695081182157213613146435511671501831';
+    const verifyContract = contractAddress
+    // const contractAddress = '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84';
+    // const verifyAddress = "996101235222674412020337938588541139382869425796";
+    // const verifyContract = '0xae7ab96520de3a18e5e111b5eaab095312d7fe84';
+
+
+    async function signEIP712Transaction() {
+      try {
+        // 请求用户连接 MetaMask
+        await ethereum.request({ method: 'eth_requestAccounts' });
+
+        // 获取用户的默认账户
+        const userAccount = (await web3.eth.getAccounts())[0];
+
+        // 读取 eip712.json 文件并获取 ABI
+        const response = await fetch('./publicMint.json');
+        const contractABI = await response.json();
+        const owner = '0x64D0F426722E04d605e903A03702b6b6F8913fB2'
+      
+        // 使用 MetaMask 签署 EIP-712 交易
+        // const signature = await web3.eth.personal.sign(
+        //   JSON.stringify(typedData),
+        //   userAccount,
+        //   ''
+        // );
+        // console.log(signature)
+        
+
+        // 创建合约实例
+        const contract = new web3.eth.Contract(contractABI ,contractAddress);
+        console.log(contract)
+         // 调用 publicMint 函数
+        // await contract.methods.publicMint(1).send({
+        //   from: userAccount,
+        //   value: web3.utils.toWei('0', 'ether')
+        // });
+
+        // 定义 EIP-712 交易参数
+        const transferParams = {
+          _nftAmount: '0000000000000000000000000000000000000000000000000000000000000001'
+        };
+
+        // 构建 EIP-712 签名数据
+        const typedData = {
+          types: {
+              EIP712Domain: [
+                  { name: 'name', type: 'string' },
+                  { name: 'version', type: 'string' },
+                  { name: 'chainId', type: 'uint256' },
+                  { name: 'verifyingContract', type: 'address' }
+              ],
+              Permit: [
+                  { name: '_nftAmount', type: 'uint256' }
+              ]
+          },
+          primaryType: 'Permit',
+          domain: {
+              name: 'EIP-2612 Token',
+              version: '1',
+              chainId: await web3.eth.getChainId(),
+              verifyingContract: verifyContract
+          },
+          message: {
+              _nftAmount: transferParams._nftAmount
+          }
+      };
+
+        // curl -X POST --data '{"jsonrpc":"2.0","method":"eth_signTypedData","params":["0x64D0F426722E04d605e903A03702b6b6F8913fB2", {"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Person":[{"name":"name","type":"string"},{"name":"wallet","type":"address"}],"Mail":[{"name":"from","type":"Person"},{"name":"to","type":"Person"},{"name":"contents","type":"string"}]},"primaryType":"Mail","domain":{"name":"Ether Mail","version":"1","chainId":1,"verifyingContract":"0xae7ab96520de3a18e5e111b5eaab095312d7fe84"},"message":{"from":{"name":"Cow","wallet":"0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"},"to":{"name":"Bob","wallet":"0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB"},"contents":"Hello, Bob!"}}],"id":1}'
+        console.log("begin request")
+        const sig = await ethereum.request({
+          method: "eth_signTypedData_v4",
+          params: [
+            userAccount, 
+            JSON.stringify(typedData)
+          ]
+        })
+        
+        console.log(sig)
+        console.log('EIP-712 transaction signed successfully!');
+      } catch (error) {
+        console.error('Error signing or executing EIP-712 transaction:', error);
+      }
+    }
+  </script>
+</body>
+</html>
