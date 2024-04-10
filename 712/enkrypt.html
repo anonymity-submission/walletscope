@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Transaction on Sepolia</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/eth-sig-util@3.0.1/dist/index.js"></script>
+
+</head>
+<body>
+    <h1>Send Ethereum Transaction on Sepolia</h1>
+    <button id="sendTransaction">Send Transaction</button>
+
+    <script>
+        let web3
+        if (typeof window.enkrypt.providers.ethereum !== 'undefined') {
+            console.log('enkrypt is installed!');
+            web3 = new Web3(window.enkrypt.providers.ethereum)
+        } else {
+            console.log("no wallet is installed")
+        }
+        //const web3 = new Web3(window.ethereum);
+
+        const contractAddress = "0xb596ed2A9edEE1F2300bC4Fe8AD809c16a42b407";
+        const verifyNum = '1036693101413695081182157213613146435511671501831';
+        const verifyContract = contractAddress
+
+        async function connectWallet() {
+            try {
+                const ac = await window.ethereum.request({ method: 'eth_requestAccounts'})
+                return ac
+            } catch (error) {
+                console.error('cannot connect wallet', error);
+            }
+        }
+
+        async function gen_typedData(chainId, verifyAddr) {
+            const transferParams = {
+                // _nftAmount: '0000000000000000000000000000000000000000000000000000000000000001'
+                _nftAmount: '1'
+
+            };
+
+            // 构建 EIP-712 签名数据
+            const typedData = {
+                types: {
+                    EIP712Domain: [
+                        { name: 'name', type: 'string' },
+                        { name: 'version', type: 'string' },
+                        { name: 'chainId', type: 'uint256' },
+                        { name: 'verifyingContract', type: 'address' }
+                    ],
+                    Permit: [
+                        { name: '_nftAmount', type: 'string' }
+                    ]
+                },
+                primaryType: 'Permit',
+                domain: {
+                    name: 'EIP-2612 Token',
+                    version: '1',
+                    chainId: chainId,
+                    verifyingContract: verifyAddr
+                },
+                message: {
+                    _nftAmount: transferParams._nftAmount
+                }
+            };
+
+            return typedData
+        }
+            
+        async function sendTransaction() {
+            const accounts = await connectWallet();
+            const userAccount = accounts[0]
+            console.log(userAccount)
+            const chainId = await web3.eth.getChainId()
+            console.log(chainId)
+
+            const typedData = await gen_typedData(chainId, verifyNum)
+            console.log(ethereum)
+        
+            try {
+                const sig = await ethereum.request({
+                    method: "eth_signTypedData_v4",
+                    params: [
+                        userAccount, 
+                        JSON.stringify(typedData)
+                    ]
+                })
+                console.log('Transaction successful:', sig);
+            } catch (error) {
+                console.error('Transaction failed:', error);
+            }
+        }
+
+        document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
+    </script>
+</body>
+</html>
