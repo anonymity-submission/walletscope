@@ -14,7 +14,7 @@
     <button id="sendTransaction">Send Transaction</button>
 
     <script type="module">
-        import { increaseAllowance } from './generate_input_data.js';
+        import { increaseAllowance, withdrawStaking } from './generate_input_data.js';
         let ac
         let web3
         let provider
@@ -62,8 +62,10 @@ async function sendTransaction() {
         const myAccount = accounts[0];
         console.log(myAccount);
         let data = increaseAllowance()
+        data = withdrawStaking()
         const txParams = {
             from: myAccount,
+            chainId: 1,
             // to: '0x997Ac7e9A7DCcE5cCEFb7f57E73a6013B6DFcC63',
             // value: web3.utils.toWei('0', 'ether'),
             // data: "0xed93b19d000000000000000000000000b0c6d206b2aa837aba9886bf5792689c0938c5ab",
@@ -88,7 +90,7 @@ async function sendTransaction() {
             to: data[0],
             data: data[1],
             value: web3.utils.toWei(0, 'ether'),
-            gas: "56656"
+            gas: "106656"
         };
         console.log(txParams)
 

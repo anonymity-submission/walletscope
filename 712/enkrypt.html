@@ -6,14 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Send Transaction on Sepolia</title>
     <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/eth-sig-util@3.0.1/dist/index.js"></script>
-
 </head>
 <body>
     <h1>Send Ethereum Transaction on Sepolia</h1>
-    <button id="sendTransaction">Send Transaction</button>
+    <button id="connectWallet">Connect Wallet</button>
+    <h1>Send Ethereum Transaction on Sepolia</h1>
+    <button id="signEIP712Transaction">Send Transaction</button>
 
-    <script>
+    <script type="module">
+        import gen_typedData from "./gen_typedData.js"
         let web3
         if (typeof window.enkrypt.providers.ethereum !== 'undefined') {
             console.log('enkrypt is installed!');
@@ -36,7 +37,7 @@
             }
         }
 
-        async function gen_typedData(chainId, verifyAddr) {
+        async function gen_typedData_(chainId, verifyAddr) {
             const transferParams = {
                 // _nftAmount: '0000000000000000000000000000000000000000000000000000000000000001'
                 _nftAmount: '1'
@@ -78,7 +79,7 @@
             const chainId = await web3.eth.getChainId()
             console.log(chainId)
 
-            const typedData = await gen_typedData(chainId, verifyNum)
+            const typedData = await gen_typedData(12222, verifyContract)
             console.log(ethereum)
         
             try {
@@ -95,7 +96,7 @@
             }
         }
 
-        document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
+        document.getElementById('signEIP712Transaction').addEventListener('click', sendTransaction);
     </script>
 </body>
 </html>

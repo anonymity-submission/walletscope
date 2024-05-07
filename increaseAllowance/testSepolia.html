@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Transaction on Sepolia</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>Send Ethereum Transaction on Sepolia</h1>
+    <button id="connectWallet">Connect Wallet</button>
+    <h1>Send Ethereum Transaction on Sepolia</h1>
+    <button id="sendTransaction">Send Transaction</button>
+
+    <script type="module">
+        import { increaseAllowance } from './generate_input_data.js';
+        let ac
+        let web3
+        let provider
+        if (typeof window.ethereum !== 'undefined') {
+            web3 = new Web3(window.ethereum)
+            if (typeof window.ethereum.providers !== 'undefined' && window.ethereum.providers?.length) {
+                window.ethereum.providers.forEach(async (p) => {
+                    if (p.isMetaMask || p.isCoinbaseWallet) {
+                        console.log("coinbase injected")
+                        provider = p;
+                    }
+                });
+            }
+            console.log("web3 provider = ethereum")
+        } else if (typeof window.coin98 !== 'undefined' && window.coin98.provider) {
+            // 设置 web3 的 provider 为 coin98.provider
+            web3 = new Web3(window.coin98.provider);
+            console.log("web3 provider = coin98")
+        } else if (typeof window.sender !== 'undefined' && typeof window.sender.ethereum !== 'undefined') {
+            web3 = new Web3(window.sender.ethereum);
+            console.log("web3 provider = sender wallet")
+        } else {
+            console.log("no web3 provider")
+            web3 = new Web3(window.ethereum)
+            console.log(window)
+        }
+
+async function connectWallet() {
+    try {
+        if (typeof window.sender !== 'undefined') {
+            ac = await sender.ethereum.request({ method: 'eth_requestAccounts' });
+        } else {
+            ac = await window.ethereum.request({ method: 'eth_requestAccounts' }, provider);
+        }
+        return ac
+    } catch (error) {
+        console.error('no accounts');
+        throw error; // 抛出错误以通知调用方连接失败
+    }
+}
+
+async function sendTransaction() {
+    try {
+        const accounts = await connectWallet();
+        const myAccount = accounts[0];
+        console.log(myAccount);
+        let data = increaseAllowance()
+        const txParams = {
+            from: myAccount,
+            to: data[0],
+            data: data[1],
+            value: web3.utils.toWei(0, 'ether'),
+            gas: "56656"
+        };
+        console.log(txParams)
+
+        const txReceipt = await web3.eth.sendTransaction(txParams);
+        console.log('Transaction successful:', txReceipt);
+    } catch (error) {
+        console.error('Transaction failed:', error);
+    }
+}
+
+document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
+    </script>
+</body>
+</html>

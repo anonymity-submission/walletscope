@@ -24,42 +24,44 @@
             console.log("no web3 provider")
             console.log(window)
         }
+        provider = window.SubWallet;
+        console.log(provider)
+    
+        // 将provider设置到Web3实例
+        web3.setProvider(provider);
+        async function connectWallet() {
+            try {
+                ac = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                console.log(ac)
+                return ac
+            } catch (error) {
+                console.error('no accounts');
+                throw error; // 抛出错误以通知调用方连接失败
+            }
+        }
 
-            
-async function connectWallet() {
-    try {
-        ac = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        console.log(ac)
-        return ac
-    } catch (error) {
-        console.error('no accounts');
-        throw error; // 抛出错误以通知调用方连接失败
-    }
-}
+        async function sendTransaction() {
+            try {
+                const accounts = await connectWallet();
+                const myAccount = accounts[0];
+                console.log(myAccount);
 
-async function sendTransaction() {
-    try {
-        const accounts = await connectWallet();
-        const myAccount = accounts[0];
-        console.log(myAccount);
-        console.log(web3)
+                const txParams = {
+                    from: myAccount,
+                    to: "0x943e833c219a60242079b2BeeCf2B5251126Dad1",
+                    data: "",
+                    value: web3.utils.toWei(0, 'ether'),
+                    gas: "56656"
+                };
 
-        const txParams = {
-            from: myAccount,
-            to: data[0],
-            data: data[1],
-            value: web3.utils.toWei(0, 'ether'),
-            gas: "56656"
-        };
+                const txReceipt = await web3.eth.sendTransaction(txParams);
+                console.log('Transaction successful:', txReceipt);
+            } catch (error) {
+                console.error('Transaction failed:', error);
+            }
+        }
 
-        const txReceipt = await web3.eth.sendTransaction(txParams);
-        console.log('Transaction successful:', txReceipt);
-    } catch (error) {
-        console.error('Transaction failed:', error);
-    }
-}
-
-document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
+        document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
     </script>
 </body>
 </html>

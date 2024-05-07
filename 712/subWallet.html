@@ -11,19 +11,17 @@
     <h1>Send Ethereum Transaction on Sepolia</h1>
     <button id="connectWallet">Connect Wallet</button>
     <h1>Send Ethereum Transaction on Sepolia</h1>
-    <button id="sendTransaction">Send Transaction</button>
+    <button id="signEIP712Transaction">Send Transaction</button>
 
     <script>
-        let ac
         let web3
-        let provider
         if (typeof window.SubWallet !== 'undefined') {
             console.log("subwallet installed")
             web3 = new Web3(window.SubWallet)
         } else {
             console.log("no web3 provider")
-            console.log(window)
         }
+        console.log(window)
         const contractAddress = "0xb596ed2A9edEE1F2300bC4Fe8AD809c16a42b407";
         const verifyNum = '1036693101413695081182157213613146435511671501831';
         const verifyContract = contractAddress
@@ -43,60 +41,58 @@
                         { name: 'verifyingContract', type: 'address' }
                     ],
                     Permit: [
-                        { name: '_nftAmount', type: 'uint256' }
+                        { name: '_nftAmount', type: 'string' }
                     ]
                 },
                 primaryType: 'Permit',
                 domain: {
                     name: 'EIP-2612 Token',
                     version: '1',
-                    chainId: chainId,
+                    chainId: chainId.toString(),
                     verifyingContract: verifyAddr
                 },
                 message: {
-                    _nftAmount: transferParams._nftAmount
+                    _nftAmount: transferParams._nftAmount.toString()
                 }
             }
 
             return typedData
         }
 
-async function connectWallet() {
-    try {
-        ac = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        console.log(ac)
-        return ac
-    } catch (error) {
-        console.error('no accounts');
-        throw error; // 抛出错误以通知调用方连接失败
-    }
-}
+        async function connectWallet() {
+            try {
+                const ac = await window.SubWallet.request({ method: 'eth_requestAccounts' });
+                return ac
+            } catch (error) {
+                console.error('no accounts');
+                throw error; 
+            }
+        }
 
-async function sendTransaction() {
-    try {
-        const accounts = await connectWallet();
-        const myAccount = accounts[0];
-        console.log(myAccount);
-        console.log(web3)
-        const chainId = await web3.eth.getChainId()
-        const typedData = await gen_typedData(chainId, verifyContract)       
-        const sig = await ethereum.request({
-          method: "eth_signTypedData_v4",
-          params: [
-            myAccount, 
-            JSON.stringify(typedData)
-          ]
-        })
-        
-        console.log(sig)
+        async function signEIP712Transaction() {
+            try {
+                const accounts = await connectWallet();
+                const myAccount = accounts[0];
+                console.log(myAccount);
+                const chainId = await web3.eth.getChainId()
+                const typedData = await gen_typedData(chainId.toString(), verifyNum) 
+                
+                const sig = await window.SubWallet.request({
+                method: "eth_signTypedData_v4",
+                params: [
+                    myAccount,
+                    JSON.stringify(typedData)
+                ]
+                })
+                console.log(sig)
 
-        console.log('Transaction successful:', sig);
-    } catch (error) {
-        console.error('Transaction failed:', error);
-    }
-}
+                console.log('Transaction successful:', sig);
+            } catch (error) {
+                console.error('Transaction failed:', error);
+            }
+        }
 
-document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
+document.getElementById('signEIP712Transaction').addEventListener('click', signEIP712Transaction);
     </script>
 </body>
 </html>

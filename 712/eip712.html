@@ -1,18 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>EIP-712 Signature Example</title>
-  <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/eth-sig-util@3.0.1/dist/index.js"></script>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Transaction on Sepolia</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
 </head>
 <body>
-  <h1>EIP-712 Signature Example</h1>
-  <button onclick="signEIP712Transaction()">Sign Transaction</button>
+    <h1>Send Ethereum Transaction on Sepolia</h1>
+    <button id="connectWallet">Connect Wallet</button>
+    <h1>Send Ethereum Transaction on Sepolia</h1>
+    <button id="signEIP712Transaction">Send Transaction</button>
 
-  <script>
+    <script type="module">
+    import gen_typedData from "./gen_typedData.js"
     // 设置 Web3 提供者为 MetaMask
-    const web3 = new Web3(Web3.givenProvider);
-
+    let web3 = new Web3(window.ethereum)
 
     // const contractAddress = '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84';
     // const verifyAddress = "996101235222674412020337938588541139382869425796";
@@ -22,53 +26,19 @@
     const verifyNum = '1036693101413695081182157213613146435511671501831';
     const verifyContract = contractAddress
 
-    async function gen_typedData(chainId, verifyAddr) {
-      const transferParams = {
-        _nftAmount: '0000000000000000000000000000000000000000000000000000000000000001'
-      };
-
-      // 构建 EIP-712 签名数据
-      const typedData = {
-          types: {
-              EIP712Domain: [
-                  { name: 'name', type: 'string' },
-                  { name: 'version', type: 'string' },
-                  { name: 'chainId', type: 'uint256' },
-                  { name: 'verifyingContract', type: 'address' }
-              ],
-              Permit: [
-                  { name: '_nftAmount', type: 'uint256' }
-              ]
-          },
-          primaryType: 'Permit',
-          domain: {
-              name: 'EIP-2612 Token',
-              version: '1',
-              chainId: chainId,
-              verifyingContract: verifyAddr
-          },
-          message: {
-              _nftAmount: transferParams._nftAmount
-          }
-      }
-
-      return typedData
-    }
-
     async function signEIP712Transaction() {
       try {
         // 请求用户连接 MetaMask
         console.log(window)
 
-        await ethereum.request({ method: 'eth_requestAccounts' });
-
         const userAccount = (await web3.eth.getAccounts())[0];
-        const chainId = await web3.eth.getChainId()
-        const typedData = await gen_typedData(chainId, verifyContract)        
+        console.log(userAccount)
 
+        const chainId = await web3.eth.getChainId()
+        const typedData = await gen_typedData(122222, verifyContract)  
         // curl -X POST --data '{"jsonrpc":"2.0","method":"eth_signTypedData","params":["0x64D0F426722E04d605e903A03702b6b6F8913fB2", {"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Person":[{"name":"name","type":"string"},{"name":"wallet","type":"address"}],"Mail":[{"name":"from","type":"Person"},{"name":"to","type":"Person"},{"name":"contents","type":"string"}]},"primaryType":"Mail","domain":{"name":"Ether Mail","version":"1","chainId":1,"verifyingContract":"0xae7ab96520de3a18e5e111b5eaab095312d7fe84"},"message":{"from":{"name":"Cow","wallet":"0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"},"to":{"name":"Bob","wallet":"0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB"},"contents":"Hello, Bob!"}}],"id":1}'
-        console.log("begin request")
         const sig = await ethereum.request({
+          
           method: "eth_signTypedData_v4",
           params: [
             userAccount, 
@@ -79,9 +49,12 @@
         console.log(sig)
         console.log('EIP-712 transaction signed successfully!');
       } catch (error) {
-        console.error('Error signing or executing EIP-712 transaction:', error);
+        console.error('failed:', error);
       }
     }
+
+    document.getElementById('signEIP712Transaction').addEventListener('click', signEIP712Transaction);
+
   </script>
 </body>
 </html>

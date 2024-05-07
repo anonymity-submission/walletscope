@@ -1,8 +1,5 @@
 function genTypedData(chainId, verifyAddr) {
-    // const response = fetch('./publicMint.json');
-    // const contractABI = response.json();
-    // const contract = new web3.eth.Contract(contractABI ,contractAddress);
-
+    
     const transferParams = {
         _nftAmount: '0000000000000000000000000000000000000000000000000000000000000001'
     };
@@ -16,11 +13,12 @@ function genTypedData(chainId, verifyAddr) {
                 { name: 'chainId', type: 'uint256' },
                 { name: 'verifyingContract', type: 'address' }
             ],
-            Permit: [
-                { name: '_nftAmount', type: 'uint256' }
+            Mail: [
+                { name: '_nftAmount', type: 'uint256' },
+                { name: 'msg', type: 'string' }
             ]
         },
-        primaryType: 'Permit',
+        primaryType: 'Mail',
         domain: {
             name: 'EIP-2612 Token',
             version: '1',
@@ -28,7 +26,8 @@ function genTypedData(chainId, verifyAddr) {
             verifyingContract: verifyAddr
         },
         message: {
-            _nftAmount: transferParams._nftAmount
+            _nftAmount: '0000000000000000000000000000000000000000000000000000000000000001',
+            msg: "                                                                                                                                                   1"
         }
     }
 

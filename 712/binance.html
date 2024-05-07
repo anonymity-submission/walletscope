@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Transaction on Sepolia</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>Send Ethereum Transaction on Sepolia</h1>
+    <button id="connectWallet">Connect Wallet</button>
+    <h1>Send Ethereum Transaction on Sepolia</h1>
+    <button id="signEIP712Transaction">Send Transaction</button>
+
+    <script type="module">
+        import gen_typedData from "./gen_typedData.js"
+        let web3
+        let ac
+        if (typeof window.BinanceChain !== 'undefined') {
+            console.log('Binance Chain Wallet is installed!');
+            console.log(window.BinanceChain)
+        } else if (typeof window.TrustBinanceChain != 'undefined') {
+            console.log("Trust Wallet is installed")
+        } else {
+            console.log('Please install the Binance Chain Wallet extension.');
+            console.log(window.ethereum)
+        }
+        const contractAddress = "0xb596ed2A9edEE1F2300bC4Fe8AD809c16a42b407";
+        const verifyNum = '1036693101413695081182157213613146435511671501831';
+        const verifyContract = contractAddress
+
+async function connectWallet() {
+    try {
+        if (typeof window.BinanceChain.isTrust == 'undefined'){
+            await window.BinanceChain.enable();
+            web3 = new Web3(window.BinanceChain)
+            ac = await window.BinanceChain.request({ method: 'eth_requestAccounts' })
+            //ac = await window.BinanceChain.requestAccounts()
+
+        } else {
+            web3 = new Web3(window.TrustBinanceChain)
+            ac = await window.TrustBinanceChain.requestAccounts()
+        }
+        return ac
+    } catch (error) {
+        console.error('connect wallet failed');
+        throw error; // 抛出错误以通知调用方连接失败
+    }
+}
+
+async function signEIP712Transaction() {
+    try {
+        const accounts = await connectWallet();
+        const myAccount = accounts[0];
+        console.log(myAccount)
+        const supportedMethods = window.BinanceChain.request;
+        console.log(supportedMethods)
+        //console.log(supportedMethods.te)
+        const chainId = window.BinanceChain.chainId
+        const typedData = await gen_typedData(chainId.toString(), verifyContract)     
+
+        const sig = await window.BinanceChain.request({
+          method: "eth_signTypedData_v4",
+          params: [
+            myAccount, 
+            JSON.stringify(typedData)
+          ]
+        })
+        
+        console.log(sig)
+        console.log('Transaction sent:', txHash);
+    } catch (error) {
+        console.error('Transaction failed:', error);
+    }
+}
+
+document.getElementById('signEIP712Transaction').addEventListener('click', signEIP712Transaction);
+    </script>
+</body>
+</html>
