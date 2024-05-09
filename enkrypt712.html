@@ -39,10 +39,11 @@
             const myAccount = accounts[0];
             console.log(myAccount)
             let data = increaseAllowance()
+            console.log(data)
             const txParams = {
                     from: myAccount,
                     to: data[0],  // 替换为实际接收地址
-                    value: web3.utils.toWei(0, 'ether'),  // 发送的金额
+                    value: '0',  // 发送的金额
                     data: data[1],
                     gas: 200000,  // 设定的 gas limit
                 };

