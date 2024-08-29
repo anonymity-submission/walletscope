@@ -1,53 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Send Transaction</title>
-    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web3 Sign Example</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script>
 </head>
 <body>
-    <h1>Send Ethereum Transaction</h1>
-    <button id="sendTransaction">Send Transaction</button>
-
-    <script>
-        if (typeof window.ethereum !== 'undefined') {
-            console.log('MetaMask is installed!');
-        }
-
+  <script>
+    window.addEventListener('load', async () => {
+      if (typeof window.ethereum !== 'undefined') {
+        // Modern DApp browsers
         const web3 = new Web3(window.ethereum);
+        console.log("window.ethereum")
+        try {
+          await window.ethereum.request({ method: 'eth_requestAccounts' }); // Request account access if needed
+          const accounts = await web3.eth.getAccounts();
+          const from = accounts[0];
+        //   const exampleMessage = "here is all";
+        //   const exampleMessage = "0x797d5b9bd6fb2c70d000491ad03b9f872f8f928eb2c4326add81969094eef2e4";
+        //   const encoded = [9, 175, 149, 232, 175, 149, 230, 177, 137, 229, 174, 151,]
+          // Encode the message in hex-encoded UTF-8
+          const encoder = new TextEncoder();
+        //   const encoded = encoder.encode(exampleMessage);
+          const encoded  = [105, 101, 114, 101, 31, 105, 115, 32, 97, 108, 108]
+          console.log(encoded)
+          const msg = `0x${Array.from(encoded).map(byte => byte.toString(16).padStart(2, '0')).join('')}`;
 
-        async function connectWallet() {
-            try {
-                await window.ethereum.request({ method: 'eth_requestAccounts' });
-            } catch (error) {
-                console.error('User denied account access');
-            }
+          // Sign the message
+          const sign = await web3.eth.personal.sign(msg, from);
+          console.log('Signature:', sign);
+        } catch (error) {
+          console.error('Error signing message:', error);
         }
+      } else if (typeof window.web3 !== 'undefined') {
+        // Legacy DApp browsers
+        const web3 = new Web3(window.web3.currentProvider);
+        try {
+          const accounts = await web3.eth.getAccounts();
+          const from = accounts[0];
+          const exampleMessage = "your message here";
 
-        async function sendTransaction() {
-            await connectWallet();
+          // Encode the message in hex-encoded UTF-8
+          const encoder = new TextEncoder();
+          const encoded = encoder.encode(exampleMessage);
+          const msg = `0x${Array.from(encoded).map(byte => byte.toString(16).padStart(2, '0')).join('')}`;
 
-            const accounts = await web3.eth.getAccounts();
-            const myAccount = accounts[0];
-
-            const txParams = {
-                from: myAccount,
-                to: '0x943e833c219a60242079b2BeeCf2B5251126Dad1',
-                value: web3.utils.toWei('0.1', 'ether'),
-                gas: '21000',
-            };
-
-            try {
-                const txReceipt = await web3.eth.sendTransaction(txParams);
-                console.log('Transaction successful:', txReceipt);
-            } catch (error) {
-                console.error('Transaction failed:', error);
-            }
+          // Sign the message
+          const sign = await web3.eth.personal.sign(msg, from);
+          console.log('Signature:', sign);
+        } catch (error) {
+          console.error('Error signing message:', error);
         }
-
-        document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
-    </script>
+      } else {
+        console.log('No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.');
+      }
+    });
+  </script>
 </body>
 </html>

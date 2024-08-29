@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hex Decode Example</title>
+</head>
+<body>
+  <script>
+    function hexToUtf8(hex) {
+      // Remove the "0x" prefix if present
+      hex = hex.replace(/^0x/, '');
+
+      // Convert hex to bytes
+      const bytes = [];
+      for (let i = 0; i < hex.length; i += 2) {
+        bytes.push(parseInt(hex.substr(i, 2), 16));
+      }
+      console.log(bytes)
+      // Convert bytes to UTF-8 string
+      const utf8Decoder = new TextDecoder("utf-8");
+      const decoded = utf8Decoder.decode(new Uint8Array(bytes));
+
+      return decoded;
+    }
+
+    const hexString = "0x797d5b9bd6fb2c70d000491ad03b9f872f8f928eb2c4326add81969094eef2e4";
+    const decodedString = hexToUtf8(hexString);
+    console.log(decodedString);
+  </script>
+</body>
+</html>

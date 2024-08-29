@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>EIP-4337 Transaction Signing with MetaMask</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
+</head>
+<body>
+  <h1>EIP-4337 Transaction Signing with MetaMask</h1>
+  <button id="connectButton">Connect MetaMask</button>
+  <button id="signButton" disabled>Sign EIP-4337 Transaction</button>
+
+  <script>
+    let web3;
+    let accounts;
+
+    // 检查 MetaMask 注入
+    if (typeof window.ethereum !== 'undefined') {
+      web3 = new Web3(window.ethereum);
+    } else {
+      alert('请安装 MetaMask 钱包!');
+    }
+
+    // 连接 MetaMask
+    const connectButton = document.getElementById('connectButton');
+    connectButton.onclick = async () => {
+      try {
+        accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        console.log('MetaMask 已连接');
+        signButton.disabled = false; // 启用签名按钮
+      } catch (error) {
+        console.error('连接 MetaMask 失败:', error);
+      }
+    };
+
+    // 签署 EIP-4337 交易
+    const signButton = document.getElementById('signButton');
+    signButton.onclick = async () => {
+      if (!accounts || accounts.length === 0) {
+        alert('请先连接 MetaMask');
+        return;
+      }
+
+      try {
+        // 构建 EIP-4337 交易参数
+        const userOpHash = '0x...'; // 替换为实际的 userOpHash
+        const userOpSigningData = {
+          userOpHash,
+          sender: accounts[0],
+          payingRelayer: '0x...', // 替换为实际的 payingRelayer 地址
+          relayData: '0x...', // 替换为实际的 relayData
+          relayWorker: '0x...', // 替换为实际的 relayWorker 地址
+          paymasterAndData: '0x...', // 替换为实际的 paymasterAndData
+          callData: '0x...', // 替换为实际的 callData
+        };
+
+        // 签署 EIP-4337 交易
+        const signature = await window.ethereum.request({
+          method: 'eth_signUserOperation',
+          params: [userOpSigningData],
+        });
+
+        console.log('EIP-4337 交易已签署:', signature);
+        // 可以将签名发送到链上进行执行
+      } catch (error) {
+        console.error('签署 EIP-4337 交易失败:', error);
+      }
+    };
+  </script>
+</body>
+</html>
