@@ -1,53 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Send Transaction</title>
-    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web3 Sign Example</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/buffer@6.0.3/index.min.js"></script>
+
 </head>
 <body>
-    <h1>Send Ethereum Transaction</h1>
-    <button id="sendTransaction">Send Transaction</button>
+  <script>
+    let web3
+    if (typeof window.ethereum !== 'undefined') {
+        // Modern DApp browsers
+        web3 = new Web3(window.ethereum);
+        ethereum.request({ method: 'eth_requestAccounts' }); // Request account access if needed
 
-    <script>
-        if (typeof window.ethereum !== 'undefined') {
-            console.log('MetaMask is installed!');
+    } else if (typeof window.enkrypt.providers.ethereum !== 'undefined') {
+        web3 = new Web3(window.enkrypt.providers.ethereum)
+        ethereum.request({ method: 'eth_requestAccounts' }); // Request account access if needed
+
+    } else if (typeof window.sender !== 'undefined'){
+        web3 = new Web3(window.sender.ethereum);
+        window.sender.ethereum.request({ method: 'eth_requestAccounts' }); // Request account access if needed
+
+    } else {
+        console.log(window)
+    }
+    window.addEventListener('load', async () => {  
+        try {
+          await window.ethereum.request({ method: 'eth_requestAccounts' }); // Request account access if needed
+          const accounts = await web3.eth.getAccounts();
+          const from = accounts[0];
+          console.log(from)
+          const exampleMessage = "This is an Ethereum message";
+
+          // Encode the message in hex-encoded UTF-8
+          const encoder = new TextEncoder();
+          const encoded = encoder.encode(exampleMessage);
+          console.log("encoded", encoded)
+        //   const msg = `0x${Buffer(exampleMessage, 'utf8').toString('hex')}`;
+          const msg = `0x${Array.from(encoded).map(byte => byte.toString(16).padStart(2, '0')).join('')}`;
+          console.log(msg)
+          const sign = await ethereum.request({
+            method: "personal_sign",
+            params: [from, exampleMessage],
+            });
+          // Sign the message
+          //const sign = await window.ethereum.request.sign(msg, from);
+          console.log('Signature:', sign);
+        } catch (error) {
+          console.error('Error signing message:', error);
         }
-
-        const web3 = new Web3(window.ethereum);
-
-        async function connectWallet() {
-            try {
-                await window.ethereum.request({ method: 'eth_requestAccounts' });
-            } catch (error) {
-                console.error('User denied account access');
-            }
-        }
-
-        async function sendTransaction() {
-            await connectWallet();
-
-            const accounts = await web3.eth.getAccounts();
-            const myAccount = accounts[0];
-
-            const txParams = {
-                from: myAccount,
-                to: '0x943e833c219a60242079b2BeeCf2B5251126Dad1',
-                value: web3.utils.toWei('0.1', 'ether'),
-                gas: '21000',
-            };
-
-            try {
-                const txReceipt = await web3.eth.sendTransaction(txParams);
-                console.log('Transaction successful:', txReceipt);
-            } catch (error) {
-                console.error('Transaction failed:', error);
-            }
-        }
-
-        document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
-    </script>
+      });
+  </script>
 </body>
 </html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Argent X Wallet Message Signing</title>
+</head>
+<body>
+    <h1>Sign Message with Argent X Wallet</h1>
+    <button id="connectButton">Connect Wallet</button>
+    <button id="signMessageButton" disabled>Sign Message</button>
+    <p id="status"></p>
+
+    <script>
+        let argentX;
+
+        async function connectWallet() {
+            console.log(window)
+            const connection = await connect({ webWalletUrl: "https://web.argent.xyz" });
+  
+            if (connection && connection.isConnected) {
+                setConnection(connection);
+                setProvider(connection.account);
+                setAddress(connection.selectedAddress);
+                console.log("connected!")
+            } else {
+                console.log("not connected")
+            }
+        }
+
+        async function signMessage() {
+            const message = 'Hello, Argent X!';
+            const accounts = await argentX.request({ method: 'eth_accounts' });
+            const account = accounts[0];
+
+            try {
+                const signature = await argentX.request({
+                    method: 'personal_sign',
+                    params: [message, account]
+                });
+                document.getElementById('status').innerText = 'Message signed: ' + signature;
+            } catch (error) {
+                document.getElementById('status').innerText = 'Failed to sign message: ' + error.message;
+            }
+        }
+
+        document.getElementById('connectButton').addEventListener('click', connectWallet);
+        document.getElementById('signMessageButton').addEventListener('click', signMessage);
+    </script>
+</body>
+</html>
