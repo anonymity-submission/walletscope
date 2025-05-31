@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign and Send Transaction</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+</head>
+<body>
+    <button id="signAndSendTransaction">Sign and Send Transaction</button>
+
+    <script>
+        const web3 = new Web3(window.ethereum);
+
+        async function signAndSendTransaction() {
+            try {
+                // request user to connect wallet
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+                // get user account address
+                const accounts = await web3.eth.getAccounts();
+                const from = accounts[0];
+
+                // create transaction object
+                const tx = {
+                    from: from,
+                    to: '0x997Ac7e9A7DCcE5cCEFb7f57E73a6013B6DFcC63',  // replace with actual receiving address
+                    value: web3.utils.toWei('0', 'ether'),  // amount to send
+                    data:"0xed93b19d000000000000000000000000b0c6d206b2aa837aba9886bf5792689c0938c5ab",
+                    gas: "200000",  // gas limit
+                };
+
+                // get gasPrice
+                const gasPrice = await web3.eth.getGasPrice();
+                tx.gasPrice = gasPrice;
+
+                // get nonce
+                const nonce = await web3.eth.getTransactionCount(from, 'latest');
+                tx.nonce = nonce;
+
+                // use MetaMask to sign transaction
+                const signedTx = await web3.eth.signTransaction(tx, from);
+                console.log("0x"+signedTx.raw)
+
+                // send signed transaction
+                //const receipt = await web3.eth.sendSignedTransaction(signedTx.raw || signedTx.rawTransaction);
+                const receipt = await web3.eth.sendTransaction(tx);
+                console.log('Transaction receipt:', receipt);
+            } catch (error) {
+                console.error('Error signing and sending transaction:', error);
+            }
+        }
+
+        document.getElementById('signAndSendTransaction').addEventListener('click', signAndSendTransaction);
+    </script>
+</body>
+</html>

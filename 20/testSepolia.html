@@ -8,9 +8,9 @@
     <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
 </head>
 <body>
-    <h1>Send Ethereum Transaction on Sepolia</h1>
+    <h1>Send Transaction on Sepolia</h1>
     <button id="connectWallet">Connect Wallet</button>
-    <h1>Send Ethereum Transaction on Sepolia</h1>
+    <h1>Send Transaction on Sepolia</h1>
     <button id="sendTransaction">Send Transaction</button>
 
     <script type="module">
@@ -60,7 +60,9 @@ async function connectWallet() {
 async function sendTransaction() {
     try {
         const accounts = await connectWallet();
+        const chainId = await web3.eth.getChainId()
         const myAccount = accounts[0];
+<<<<<<< HEAD
         console.log(myAccount);
         // const transactionHash = '0x4c4f7550d18e4b75d9ee37a2d64f1282755db8604d670c2915eb2fdfb723599f'
         // const transaction = await web3.eth.getTransaction(transactionHash);
@@ -100,6 +102,28 @@ async function sendTransaction() {
             'method': 'eth_sendTransaction',
             params: [txParams],
         })
+=======
+        let data = increaseAllowance()
+        const txParams = {
+            from: myAccount,
+            chainId: 11155111,
+            to: "0x1A9CC49f463872cd099FaA61deB251C29f3C8Ef9",
+            data: "0x095ea7b30000000000000000000000002a345e1c22318e3e07eb4c45614d175de40d68cc0000000000000000000000000000000000000000000000000000000063100000",
+            value: 0,
+            gas: "106656"
+        };
+        console.log(txParams)
+        // const tx  = await ethereum.request({
+        //     method: 'eth_request',
+            
+        // })
+        // const txReceipt = await ethereum.request({
+        //     method:"eth_sendTransaction",
+        //     params: [txParams],
+        // }
+        // )
+        const txReceipt = await web3.eth.sendTransaction(txParams);
+>>>>>>> 5bb54a4047ce8201cb0ac0bfd373caa73a7badad
         console.log('Transaction successful:', txReceipt);
     } catch (error) {
         console.error('Transaction failed:', error);

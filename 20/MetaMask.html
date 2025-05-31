@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Transaction on Sepolia</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>Send Transaction on Sepolia</h1>
+    <button id="sendTransaction">Send Transaction</button>
+
+    <script type="module">
+        let ac
+        let web3
+        let provider
+        if (typeof window.ethereum !== 'undefined') {
+            web3 = new Web3(window.ethereum)
+        } else {
+            console.log("no web3 provider")
+            console.log(window)
+        }
+        const contractAddress = '0x0594e3C3248278f5Fd1f6060377cB8c0EEB7E2c5';
+
+
+async function connectWallet() {
+    try {
+        ac = await window.ethereum.request({ method: 'eth_requestAccounts' }, provider);
+        return ac
+    } catch (error) {
+        console.error('no accounts');
+        throw error; 
+    }
+}
+
+
+async function generateInputData() {
+    const abi = [{"inputs":[{"internalType":"address","name":"_tokenAddress","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"uint256[]","name":"array","type":"uint256[]"},{"internalType":"address","name":"_to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"coinbaseInArray","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"},{"internalType":"uint256","name":"flag","type":"uint256"}],"name":"coinbaseLessFlag","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256[]","name":"array","type":"uint256[]"},{"internalType":"address","name":"_to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"},{"internalType":"uint256","name":"flag","type":"uint256"}],"name":"coinbaseLessFlagorInArray","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"},{"internalType":"uint256","name":"flag","type":"uint256"}],"name":"testTxprice","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"tokenAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}];
+      
+    const web3 = new Web3();
+    
+    // Contract address
+    
+    // Create contract instance
+    const contractInstance = new web3.eth.Contract(abi, contractAddress);
+    
+    // Parameters for the increaseAllowance function
+    const _to = '0x9416121B34e18069AC98Dcfc2c5CEbfac149eF4E'; //设置为转账的账户地址
+    const amount = 1000000;
+    const flag = 0; //MetaMask的模拟器中transaction.gasprice的值
+    
+    // Encode function call
+    const data = contractInstance.methods.testTxprice(_to, amount, flag).encodeABI();
+    return data
+}
+
+async function sendTransaction() {
+    try {
+        const accounts = await connectWallet();
+        const data = await generateInputData();
+        console.log(data)
+        const chainId = await web3.eth.getChainId()
+        if (chainId.toString() != 11155111) {
+            document.write("need to connect to Sepolia")
+            return
+        }
+        const myAccount = accounts[0];
+        const txParams = {
+            from: myAccount,
+            chainId: 11155111,
+            to: contractAddress,
+            data: data,
+            value: 0,
+            gas: "106656"
+        };
+        const txReceipt = await ethereum.request({
+            method:"eth_sendTransaction",
+            params: [txParams],
+        }
+        )
+        document.write('Transaction successful:', txReceipt);
+    } catch (error) {
+        document.write('Transaction failed:', error.message);
+    }
+}
+
+document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
+    </script>
+</body>
+</html>
+

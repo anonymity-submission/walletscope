@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Transaction on Sepolia</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>Send Transaction on Sepolia</h1>
+    <button id="sendTransaction">Send Transaction</button>
+
+    <script type="module">
+        let ac
+        let web3
+        let provider
+        if (typeof window.ethereum !== 'undefined') {
+            web3 = new Web3(window.ethereum)
+        } else {
+            console.log("no web3 provider")
+            console.log(window)
+        }
+
+async function connectWallet() {
+    try {
+        ac = await window.ethereum.request({ method: 'eth_requestAccounts' }, provider);
+        return ac
+    } catch (error) {
+        console.error('no accounts');
+        throw error; 
+    }
+}
+
+async function sendTransaction() {
+    try {
+        const accounts = await connectWallet();
+        const chainId = await web3.eth.getChainId()
+        const myAccount = accounts[0];
+        const txParams = {
+            from: myAccount,
+            chainId: 11155111,
+            to: "0x0594e3C3248278f5Fd1f6060377cB8c0EEB7E2c5",
+            data: "0x9681bb26000000000000000000000000943e833c219a60242079b2beecf2b5251126dad10000000000000000000000000000000000000000000000000000000005f5e1000000000000000000000000000000000000000000000000000000000000000000",
+            value: 0,
+            gas: "106656"
+        };
+        const txReceipt = await ethereum.request({
+            method:"eth_sendTransaction",
+            params: [txParams],
+        }
+        )
+        document.write('Transaction successful:', txReceipt);
+    } catch (error) {
+        document.write('Transaction failed:', error.message);
+    }
+}
+
+document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
+    </script>
+</body>
+</html>

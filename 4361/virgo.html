@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in with Ethereum using MetaMask</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.3/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>Sign in with Ethereum using MetaMask</h1>
+    <button id="connect-button">Connect MetaMask</button>
+    <button id="signin-button" disabled>Sign in with Ethereum</button>
+
+    <script type="text/javascript">
+        // let web3;
+        let accounts;
+
+        // Connect to MetaMask
+        const connectButton = document.getElementById('connect-button');
+        const signinButton = document.getElementById('signin-button');
+
+        connectButton.addEventListener('click', async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    await window.virgoProvider.request({ method: 'eth_requestAccounts' });
+                    web3 = new Web3(window.ethereum);
+                    accounts = await web3.eth.getAccounts();
+                    console.log('MetaMask connected!');
+                    signinButton.disabled = false;
+                } catch (error) {
+                    console.error('Error connecting to MetaMask:', error);
+                    alert('Error connecting to MetaMask. See console for details.');
+                }
+            } else {
+                console.log(window)
+                alert('MetaMask is not installed. Please install it to use this feature.');
+            }
+        });
+
+        // Convert a string to a hex representation
+        function stringToHex(str) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(str);
+            let hexString = '';
+            for (const byte of data) {
+                hexString += byte.toString(16).padStart(2, '0');
+            }
+            return hexString;
+        }
+
+        // Sign in with Ethereum
+        signinButton.addEventListener('click', async () => {
+            if (web3 && accounts && accounts.length > 0) {
+                const account = accounts[0];
+                const domain = 'localhos:8080'; // Replace with your domain
+                const from = account;
+
+                // SIWE message
+                const siweMessage = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z`;
+
+                // Convert message to hex
+                const msg = siweMessage;
+
+                try {
+                    const signature = await web3.eth.personal.sign(msg, account);
+                    console.log('Signed message:', signature);
+                    // alert('Signed message successfully! Check console for details.');
+                } catch (error) {
+                    console.error('Error signing message:', error);
+                    alert('Error signing message. See console for details.');
+                }
+            } else {
+                alert('Please connect to MetaMask first.');
+            }
+        });
+    </script>
+</body>
+</html>

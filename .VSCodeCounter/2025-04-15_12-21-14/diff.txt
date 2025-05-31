@@ -1,0 +1,62 @@
+Date : 2025-04-15 12:21:14
+Directory : /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712
+Total : 33 files,  301 codes, 30 comments, 26 blanks, all 357 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| HTML       |         23 |        317 |          0 |         39 |        356 |
+| JSON       |          3 |          3 |          0 |          0 |          3 |
+| JavaScript |          7 |        -19 |         30 |        -13 |         -2 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                          | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                             |         33 |        301 |         30 |         26 |        357 |
+| . (Files)                                                                     |         19 |      1,056 |         49 |        138 |      1,243 |
+| ..                                                                            |         14 |       -755 |        -19 |       -112 |       -886 |
+| ../20                                                                         |         14 |       -755 |        -19 |       -112 |       -886 |
++-------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                      | language   | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/20/MetaMask.html          | HTML       |        -79 |          0 |        -14 |        -93 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/20/binance.html           | HTML       |        -68 |          0 |         -5 |        -73 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/20/cnvd.html              | HTML       |        -58 |          0 |         -5 |        -63 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/20/enkrypt.html           | HTML       |        -58 |          0 |         -7 |        -65 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/20/generate_input_data.js | JavaScript |        -20 |         -2 |         -4 |        -26 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/20/increaseAllowance.html | HTML       |          0 |          0 |         -1 |         -1 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/20/personal-sign.html     | HTML       |        -29 |          0 |         -4 |        -33 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/20/personl_sign.html      | HTML       |        -66 |          0 |         -8 |        -74 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/20/rabby.html             | HTML       |        -38 |          0 |         -7 |        -45 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/20/rabby.js               | JavaScript |        -28 |          0 |         -6 |        -34 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/20/subWallet.html         | HTML       |        -61 |          0 |         -7 |        -68 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/20/test.html              | HTML       |        -40 |          0 |         -7 |        -47 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/20/test.js                | JavaScript |        -85 |        -17 |        -25 |       -127 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/20/testSepolia.html       | HTML       |       -125 |          0 |        -12 |       -137 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/binance.html          | HTML       |         74 |          0 |          8 |         82 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/crossnet.html         | HTML       |         48 |          0 |         10 |         58 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/eip712.html           | HTML       |         93 |          0 |          8 |        101 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/eip712.json           | JSON       |          1 |          0 |          0 |          1 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/enkrypt.html          | HTML       |        116 |          0 |         11 |        127 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/frontier.html         | HTML       |         92 |          0 |          8 |        100 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/gen_permit.js         | JavaScript |          8 |          0 |          2 |         10 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/gen_typedData.js      | JavaScript |         56 |         34 |          7 |         97 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/liquidity.html        | HTML       |         64 |          0 |          8 |         72 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/permit.json           | JSON       |          1 |          0 |          0 |          1 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/permit2-helper.js     | JavaScript |         16 |          0 |          4 |         20 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/publicMint.json       | JSON       |          1 |          0 |          0 |          1 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/rabby.html            | HTML       |         54 |          0 |         12 |         66 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/sender.html           | HTML       |         77 |          0 |         10 |         87 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/subWallet.html        | HTML       |         89 |          0 |         10 |         99 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/testSepolia.html      | HTML       |         85 |          0 |         13 |         98 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/test_gen_permit3.js   | JavaScript |         34 |         15 |          9 |         58 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/virus.html            | HTML       |         77 |          0 |         10 |         87 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/zeal.html             | HTML       |         70 |          0 |          8 |         78 |
+| Total                                                                         |            |        301 |         30 |         26 |        357 |
++-------------------------------------------------------------------------------+------------+------------+------------+------------+------------+

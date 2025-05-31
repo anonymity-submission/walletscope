@@ -1,0 +1,9 @@
+"filename", "language", "HTML", "JavaScript", "comment", "blank", "total"
+"/Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/extension-analysis/identify-input.js", "JavaScript", 0, -149, -29, -31, -209
+"/Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/extension-analysis/launch-chrome.js", "JavaScript", 0, -7, -2, -1, -10
+"/Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/extension-analysis/metamask.html", "HTML", -17, 0, 0, -1, -18
+"/Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/extension-analysis/test.js", "JavaScript", 0, -20, -2, -6, -28
+"/Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/extension-analysis/util.js", "JavaScript", 0, -100, -25, -33, -158
+"/Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/extension-analysis/wallets/metaMask.js", "JavaScript", 0, -79, -1, -21, -101
+"/Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/increaseAllowance/testSepolia.html", "HTML", 79, 0, 0, 6, 85
+"Total", "-", 62, -355, -59, -87, -439

@@ -1,0 +1,53 @@
+Date : 2025-04-15 12:21:24
+Directory : /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/4337
+Total : 24 files,  -893 codes, -40 comments, -111 blanks, all -1044 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| JavaScript |          8 |          4 |        -40 |         -2 |        -38 |
+| JSON       |          3 |         -3 |          0 |          0 |         -3 |
+| HTML       |         13 |       -894 |          0 |       -109 |     -1,003 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                        | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                           |         24 |       -893 |        -40 |       -111 |     -1,044 |
+| . (Files)                                                                   |          5 |        163 |          9 |         27 |        199 |
+| ..                                                                          |         19 |     -1,056 |        -49 |       -138 |     -1,243 |
+| ../712                                                                      |         19 |     -1,056 |        -49 |       -138 |     -1,243 |
++-----------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                    | language   | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/4337/eip4337.html       | HTML       |         45 |          0 |          7 |         52 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/4337/stackblitz.js      | JavaScript |         49 |          7 |         11 |         67 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/4337/starknetbook.js    | JavaScript |         16 |          2 |          4 |         22 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/4337/test.js            | JavaScript |         26 |          0 |          4 |         30 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/4337/webpack.config.js  | JavaScript |         27 |          0 |          1 |         28 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/binance.html        | HTML       |        -74 |          0 |         -8 |        -82 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/crossnet.html       | HTML       |        -48 |          0 |        -10 |        -58 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/eip712.html         | HTML       |        -93 |          0 |         -8 |       -101 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/eip712.json         | JSON       |         -1 |          0 |          0 |         -1 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/enkrypt.html        | HTML       |       -116 |          0 |        -11 |       -127 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/frontier.html       | HTML       |        -92 |          0 |         -8 |       -100 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/gen_permit.js       | JavaScript |         -8 |          0 |         -2 |        -10 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/gen_typedData.js    | JavaScript |        -56 |        -34 |         -7 |        -97 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/liquidity.html      | HTML       |        -64 |          0 |         -8 |        -72 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/permit.json         | JSON       |         -1 |          0 |          0 |         -1 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/permit2-helper.js   | JavaScript |        -16 |          0 |         -4 |        -20 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/publicMint.json     | JSON       |         -1 |          0 |          0 |         -1 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/rabby.html          | HTML       |        -54 |          0 |        -12 |        -66 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/sender.html         | HTML       |        -77 |          0 |        -10 |        -87 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/subWallet.html      | HTML       |        -89 |          0 |        -10 |        -99 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/testSepolia.html    | HTML       |        -85 |          0 |        -13 |        -98 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/test_gen_permit3.js | JavaScript |        -34 |        -15 |         -9 |        -58 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/virus.html          | HTML       |        -77 |          0 |        -10 |        -87 |
+| /Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/712/zeal.html           | HTML       |        -70 |          0 |         -8 |        -78 |
+| Total                                                                       |            |       -893 |        -40 |       -111 |     -1,044 |
++-----------------------------------------------------------------------------+------------+------------+------------+------------+------------+

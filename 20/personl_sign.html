@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Sign Example</title>
+</head>
+<body>
+    <h1>Personal Sign Message</h1>
+    <p>Click the button below to sign a message with your wallet.</p>
+    <button id="signButton">Sign Message</button>
+    <p id="output"></p>
+
+    <script>
+        // Check if MetaMask is installed
+        async function checkMetaMask() {
+            if (typeof window.ethereum === 'undefined') {
+                alert('MetaMask is not installed. Please install it to use this feature.');
+                return false;
+            }
+            return true;
+        }
+
+        // Request wallet connection
+        async function connectWallet() {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                return accounts[0];
+            } catch (error) {
+                console.error('Error connecting to wallet:', error);
+                return null;
+            }
+        }
+
+        // Personal Sign message
+        async function personalSignMessage(account) {
+            const message = "Hello, this is a message to sign!";
+            // const hexMessage = `0x${Buffer.from(message, 'utf8').toString('hex')}`;
+            const hexMessage = `0x${[...message].map(char => char.charCodeAt(0).toString(16).padStart(2, '0')).join('')}`;
+
+            try {
+                const signature = await window.ethereum.request({
+                    method: 'personal_sign',
+                    params: [hexMessage, account],
+                });
+                return signature;
+            } catch (error) {
+                console.error('Error signing message:', error);
+                return null;
+            }
+        }
+
+        // Handle button click
+        document.getElementById('signButton').addEventListener('click', async () => {
+            const isMetaMaskInstalled = await checkMetaMask();
+            if (!isMetaMaskInstalled) return;
+
+            const account = await connectWallet();
+            if (!account) {
+                document.getElementById('output').innerText = 'Wallet connection failed.';
+                return;
+            }
+
+            const signature = await personalSignMessage(account);
+            if (signature) {
+                document.getElementById('output').innerText = `Signature: ${signature}`;
+            } else {
+                document.getElementById('output').innerText = 'Message signing failed.';
+            }
+        });
+    </script>
+</body>
+</html>

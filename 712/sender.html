@@ -8,9 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
 </head>
 <body>
-    <h1>Send Ethereum Transaction on Sepolia</h1>
+    <h1>Sign Message with Inconsistent ChainID</h1>
     <button id="connectWallet">Connect Wallet</button>
-    <h1>Send Ethereum Transaction on Sepolia</h1>
     <button id="signEIP712Transaction">Send Transaction</button>
 
     <script type="module">
@@ -33,7 +32,6 @@
                     }
                 });
             }
-            console.log("web3 provider = ethereum")
         } else if (typeof window.sender !== 'undefined' && typeof window.sender.ethereum !== 'undefined') {
             web3 = new Web3(window.sender.ethereum);
             console.log("web3 provider = sender wallet")
@@ -59,14 +57,12 @@
 
         async function signEIP712Transaction() {
             try {
-                // 请求用户连接 MetaMask
-                console.log(window)
-
                 const userAccount = (await web3.eth.getAccounts())[0];
-                console.log(userAccount)
 
                 const chainId = await web3.eth.getChainId()
-                const typedData = await gen_typedData(122, verifyNum)        
+                console.log("current connected chainID:", chainId.toString())
+                const typedData = await gen_typedData(43114, verifyNum)        
+                console.log("typed data to sign: ", typedData)
 
                 // curl -X POST --data '{"jsonrpc":"2.0","method":"eth_signTypedData","params":["0x64D0F426722E04d605e903A03702b6b6F8913fB2", {"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Person":[{"name":"name","type":"string"},{"name":"wallet","type":"address"}],"Mail":[{"name":"from","type":"Person"},{"name":"to","type":"Person"},{"name":"contents","type":"string"}]},"primaryType":"Mail","domain":{"name":"Ether Mail","version":"1","chainId":1,"verifyingContract":"0xae7ab96520de3a18e5e111b5eaab095312d7fe84"},"message":{"from":{"name":"Cow","wallet":"0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"},"to":{"name":"Bob","wallet":"0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB"},"contents":"Hello, Bob!"}}],"id":1}'
                 const sig = await window.sender.ethereum.request({

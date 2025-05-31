@@ -1,0 +1,8 @@
+"filename", "language", "JavaScript", "HTML", "comment", "blank", "total"
+"/Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/extension-analysis/identify-input.js", "JavaScript", 149, 0, 29, 31, 209
+"/Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/extension-analysis/launch-chrome.js", "JavaScript", 7, 0, 2, 1, 10
+"/Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/extension-analysis/metamask.html", "HTML", 0, 17, 0, 1, 18
+"/Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/extension-analysis/test.js", "JavaScript", 20, 0, 2, 6, 28
+"/Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/extension-analysis/util.js", "JavaScript", 100, 0, 25, 33, 158
+"/Users/siahu/Desktop/paper/wallet-NDSS'25/wlts-code/extension-analysis/wallets/metaMask.js", "JavaScript", 79, 0, 1, 21, 101
+"Total", "-", 355, 17, 59, 93, 524
