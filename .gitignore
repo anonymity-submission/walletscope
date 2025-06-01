@@ -1,1 +1,4 @@
 .env
+chrome/
+node_modules/
+sources/
