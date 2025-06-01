@@ -4,6 +4,8 @@ async function setMetaMask(extensionPath) {
   let browser;
   let page;
     // Launch Chromium with Metamask extension
+
+
   browser = await puppeteer.launch({
     headless: false,
     executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
@@ -13,6 +15,8 @@ async function setMetaMask(extensionPath) {
       `--load-extension=${extensionPath}`,
     ],
   });
+
+  console.log(extensionPath);
 
   await new Promise(resolve => setTimeout(resolve, 2000)); 
 
@@ -36,7 +40,9 @@ async function setMetaMask(extensionPath) {
   await page.waitForSelector(buttonSelector); 
   await page.click(buttonSelector); 
 
-  const privateKey = 'put your private key here'  
+  const privateKey = process.env.PRIVATE_KEY;
+
+  console.log(privateKey);
 
   async function fillInputs(page, str) {
     const parts = str.split(" ");

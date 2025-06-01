@@ -1,4 +1,3 @@
-const puppeteer = require('puppeteer');
 const {setMetaMask} = require('./wallets/metaMask.js')
 const {findExtraElements, checkIfPageIsIdle, isInList, removeDuplicates} = require('./util.js')
 const fs = require('fs');
