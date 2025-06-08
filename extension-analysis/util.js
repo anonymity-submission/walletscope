@@ -143,7 +143,7 @@ function areListsEqual(list1, list2) {
   }
 
 /**
- * 勾选“同意条款”类复选框（关键字出现即可，无需整句匹配）
+ * 勾选"同意条款"类复选框（关键字出现即可，无需整句匹配）
  *
  * @param {import('puppeteer').Page} page        Puppeteer Page
  * @param {object}                   [opt]
@@ -238,7 +238,7 @@ async function clickButtonByText(page, label, opt = {}) {
   const isRegex  = label instanceof RegExp;
   const pattern  = isRegex ? label.source : label;
 
-  // 1️⃣ 先等页面里出现“任何”候选元素
+  // 1️⃣ 先等页面里出现"任何"候选元素
   await page.waitForSelector('button, [role="button"], [role^="link"]', {
     timeout,
   });
@@ -363,44 +363,44 @@ async function findInputByHint(page, hint, opt = {}) {
 /* ---------- 5. Utility function: get unique selector ---------- */
 
 /**
- * 生成当前文档里唯一的 CSS selector
- * @param {Element} el  目标 DOM 元素
- * @returns {string}    唯一选择器
+ * Generates a unique CSS selector for a given DOM element
+ * @param {Element} element - The DOM element to generate a selector for
+ * @returns {string} A unique CSS selector that can be used to select the element
+ * @throws {TypeError} If the input is not a DOM Element
  */
-function getUniqueSelector(el) {
-  if (!(el instanceof Element)) {
-    throw new TypeError('need a DOM Element');
+function getUniqueSelector(element) {
+  if (!(element instanceof Element)) {
+    throw new TypeError('Input must be a DOM Element');
   }
 
-  // ① 若元素带有唯一 id，直接用
-  if (el.id && document.getElementById(el.id) === el) {
-    return `#${CSS.escape(el.id)}`;
+  // If element has a unique ID, use it directly
+  if (element.id && document.getElementById(element.id) === element) {
+    return `#${CSS.escape(element.id)}`;
   }
 
-  // ② 递归向上构造路径
   const parts = [];
-  let node = el;
+  let node = element;
 
   while (node && node.nodeType === 1) {
-    let part = node.localName;                 // tagName，已是小写
+    let part = node.localName;  // tagName in lowercase
 
-    // 用类名缩短（可选）
+    // Add class names if they exist
     if (node.classList.length) {
       part += '.' + [...node.classList].map(c => CSS.escape(c)).join('.');
     }
 
-    // 若同类型节点不止一个，加 nth-of-type
+    // Add nth-of-type if there are siblings with the same tag
     const sameTagSiblings = node.parentElement
       ? [...node.parentElement.children].filter(n => n.localName === node.localName)
       : [];
     if (sameTagSiblings.length > 1) {
-      const idx = sameTagSiblings.indexOf(node) + 1; // 1-based
-      part += `:nth-of-type(${idx})`;
+      const index = sameTagSiblings.indexOf(node) + 1; // 1-based index
+      part += `:nth-of-type(${index})`;
     }
 
     parts.unshift(part);
 
-    // 如果拼到 body 就停；否则继续向上
+    // Stop at body element
     node = node.parentElement;
     if (node === document.body) {
       parts.unshift('body');
@@ -411,5 +411,163 @@ function getUniqueSelector(el) {
   return parts.join(' > ');
 }
 
+async function getAllSelectors(page) {
+  return page.evaluate(({ STAMP }) => {
+    /* ---------- 简易 CSS 转义 (足够应付 id/class) ---------- */
+    const cssEscape = str =>
+      str.replace(/([ !"#$%&'()*+,.\/:;<=>?@\[\\\]^`{|}~])/g, '\\$1');
+
+    function getUniqueSelector(el) {
+      if (el.id) return `#${cssEscape(el.id)}`;
+
+      const parts = [];
+      let node = el;
+
+      while (node && node.nodeType === 1) {
+        let part = node.localName;
+
+        if (node.classList.length) {
+          part += '.' + cssEscape(node.classList[0]);
+        }
+
+        const siblings = node.parentElement
+          ? [...node.parentElement.children]
+              .filter(n => n.localName === node.localName)
+          : [];
+        if (siblings.length > 1) {
+          part += `:nth-of-type(${siblings.indexOf(node) + 1})`;
+        }
+
+        parts.unshift(part);
+        node = node.parentElement;
+        if (node === document.body) {
+          parts.unshift('body');
+          break;
+        }
+      }
+      return parts.join(' > ');
+    }
+
+    /* ----------- 主逻辑：收集所有 selector -------------- */
+    return [...document.querySelectorAll('*')].map(getUniqueSelector);
+  }, { STAMP: 'dummy' /* 传参示例，不用可删 */ });
+}
+
+
+async function getXPathFromOuterHTML(page, outerHTMLStr) {
+  const xpath = await page.evaluate((outerHTML) => {
+    const allElements = Array.from(document.querySelectorAll('*'));
+    const targetElement = allElements.find(el => el.outerHTML === outerHTML);
+    if (!targetElement) return null;
+
+    function getElementXPath(el) {
+      if (el.id) {
+        return `//*[@id="${el.id}"]`;
+      }
+
+      const parts = [];
+      while (el && el.nodeType === Node.ELEMENT_NODE) {
+        let index = 1;
+        let sibling = el.previousElementSibling;
+        while (sibling) {
+          if (sibling.nodeName === el.nodeName) {
+            index++;
+          }
+          sibling = sibling.previousElementSibling;
+        }
+        const tagName = el.nodeName.toLowerCase();
+        const pathIndex = index > 1 || el.nextElementSibling ? `[${index}]` : '';
+        parts.unshift(`${tagName}${pathIndex}`);
+        el = el.parentElement;
+      }
+      return '/' + parts.join('/');
+    }
+
+    return getElementXPath(targetElement);
+  }, outerHTMLStr);
+
+  return xpath;
+}
+
+
+async function dumpElementDetails(page, elementHandle) {
+  const details = await page.evaluate(el => {
+    const attrs = {};
+    for (const attr of el.attributes) {
+      attrs[attr.name] = attr.value;
+    }
+
+    const computed = window.getComputedStyle(el);
+    const styles = Array.from(computed).reduce((acc, key) => {
+      acc[key] = computed.getPropertyValue(key);
+      return acc;
+    }, {});
+
+    return {
+      outerHTML: el.outerHTML,
+      textContent: el.textContent,
+      attributes: attrs
+    };
+  }, elementHandle);
+
+  console.dir(details, { depth: null });
+}
+
+// #app-content > div > div.mm-box.main-container-wrapper > div > div > div.swaps__content > div > div.swaps-footer > div.swaps-footer__buttons > div > footer > button
+
+
+async function getButtonSelectors(page) {
+  const selectors = await page.evaluate(() => {
+    /* =====▶ 内联 getUniqueSelector，避免 LavaMoat 限制 ◀===== */
+    const escapeCss = s => s.replace(/([ !"#$%&'()*+,.\/:;<=>?@[\]\\^`{|}~])/g, '\\$1');
+    function getUniqueSelector(el) {
+      if (el.id) return `#${escapeCss(el.id)}`;
+      const parts = [];
+      let node = el;
+      while (node && node.nodeType === 1) {
+        let part = node.localName;
+        if (node.classList.length) part += '.' + escapeCss(node.classList[0]);
+        const sibs = node.parentElement
+          ? [...node.parentElement.children].filter(n => n.localName === node.localName)
+          : [];
+        if (sibs.length > 1) part += `:nth-of-type(${sibs.indexOf(node) + 1})`;
+        parts.unshift(part);
+        node = node.parentElement;
+        if (node === document.body) {
+          parts.unshift('body');
+          break;
+        }
+      }
+      return parts.join(' > ');
+    }
+
+    /* =====▶ 按规则选取所有可点击元素 ◀===== */
+    const CLICK_SEL =
+      'button, [role="button"], a[href], a[role="link"], ' +
+      'input[type="button"], input[type="submit"], div[role="button"]';
+
+    const visible = el => {
+      const s = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.height > 0 &&
+             s.display !== 'none' && s.visibility !== 'hidden';
+    };
+
+    return [...document.querySelectorAll(CLICK_SEL)]
+      .filter(visible)
+      .map(getUniqueSelector);
+  });
+
+  // click all buttons
+  for (const sel of selectors) {
+    const handle = await page.$(sel);
+    if (!handle) continue;
+    console.log(`clicking: ${sel}`);
+    await handle.click();
+    await new Promise(resolve => setTimeout(resolve, 200));
+  }
   
-export {isInList, findExtraElements, checkIfPageIsIdle, removeDuplicates, clickButtonByText, findInputByHint, checkTermsBox, waitForNoActivity, getUniqueSelector};
+  return selectors;
+}
+
+export {isInList, findExtraElements, checkIfPageIsIdle, removeDuplicates, clickButtonByText, findInputByHint, checkTermsBox, waitForNoActivity, getUniqueSelector, getAllSelectors, getButtonSelectors, dumpElementDetails, getXPathFromOuterHTML};

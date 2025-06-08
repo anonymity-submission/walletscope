@@ -143,16 +143,23 @@ async function clickElements (browser, page, clicked, newClickable) {
       // }
       await new Promise(resolve => setTimeout(resolve,3000));  
       
-      const newPages = await browser.pages();
+      // const newPages = await browser.pages();
 
-      // check if any new windows
-      if (newPages.length > originalPages.length) {
-        const newWindow = newPages.find(page => !originalPages.includes(page));
-        if (newWindow) {
-          await newWindow.goBack();
-          await newWindow.close();  // close new windows
-        }
-      };
+      // // check if any new windows
+      // if (newPages.length > originalPages.length) {
+      //   const newWindow = newPages.find(page => !originalPages.includes(page));
+      //   if (newWindow) {
+      //     await newWindow.goBack();
+      //     await newWindow.close();  // close new windows
+      //   }
+      // };
+      const currentPages = await browser.pages();
+      const newPages = currentPages.filter(page => !originalPages.includes(page));
+
+      for (const page of newPages) {
+        await page.close();
+      }
+
 
       // check type limitations of each element
       let inputType = await checkInputType(page);

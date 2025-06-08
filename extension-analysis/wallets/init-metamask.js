@@ -83,13 +83,17 @@ async function setupMetaMask (page) {
 
   await checkTermsBox(page);
   await clickButtonByText(page, 'Import my wallet');
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise(resolve => setTimeout(resolve, 200));
 
   await clickButtonByText(page, 'Done');
   await clickButtonByText(page, 'Next');
   await clickButtonByText(page, 'Done');
   await new Promise(resolve => setTimeout(resolve, 800));
-  await clickButtonByText(page, 'Not now');
+  try {
+    await clickButtonByText(page, 'Not now');
+  } catch (error) {
+    console.log('Not now button not found');
+  }
 
   // Now you're in the main interface, you can switch the network as needed:
   if (NETWORK !== 'Ethereum Mainnet') {

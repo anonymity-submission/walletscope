@@ -7,6 +7,7 @@
 import puppeteer from 'puppeteer';
 import fs        from 'node:fs/promises';
 import { initMetaMask } from './wallets/init-metamask.js';
+import { getAllSelectors, getButtonSelectors } from './util.js';
 
 // ───────────────────────── constants ─────────────────────────
 const WS_PATH   = '/tmp/pptr-ws';                // endpoint file from script-A
@@ -25,15 +26,16 @@ const MAX_DEPTH  = 120;                          // failsafe
 
 // ─── helper: safe click (closes popup, notes nav) ────────────
 async function clickAndObserve(page, el) {
+  await el.click({ delay: 800 });
+
   const navP   = page.waitForNavigation({ timeout: NAV_WAIT,
                                           waitUntil: 'domcontentloaded' })
                      .catch(() => null);
-  const popupP = page.on('popup', { timeout: POPUP_WAIT });
+  // const popupP = page.on('popup', { timeout: POPUP_WAIT });
                     //  .catch(() => null);
 
-  await el.click({ delay: 35 });
-  const [popup, nav] = await Promise.all([popupP, navP]);
-  return { popup, navigated: !!nav };
+  const nav = await navP;
+  return { navigated: !!nav };
 }
 
 // ─── helper: dummy-fill inputs so they count as “touched” ────
@@ -160,7 +162,7 @@ async function crawl(page, path, viewHashes, outputs, depth = 0) {
     CLICK_SEL,
     INPUT_SEL
   );
-  console.log(handles);
+  // console.log(handles);
   // record inputs and clicks
   const inputs = handles.filter(n => n.type === 'input');
   const clicks = handles.filter(n => n.type === 'click');
@@ -176,26 +178,25 @@ async function crawl(page, path, viewHashes, outputs, depth = 0) {
   if (clicks != undefined && clicks.length > 0) {
     // loop through clickables
     for (const el of clicks) {
-      // rebuild ElementHandle (scan返的是 Node refs, but not serialisable)
       const txt = await page.evaluate(el => el.text, el);
 
-      const element = await page.$(el.selector);
-      const { popup, navigated } = await clickAndObserve(page, element);
       console.log(`   → clicking: [${txt || '<no-text>'}]`);
-
-      // await element.click(); 
+      // rebuild ElementHandle (scan返的是 Node refs, but not serialisable)
+      await new Promise(resolve => setTimeout(resolve, 10000000));
+      const element = await page.$(el.selector);
+      const navigated = await clickAndObserve(page, element);
       
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const label = await labelOf(element);
       path.push(label);
-
+ 
       // const handles = await page.$$(`${CLICK_SEL}, ${INPUT_SEL}`);
 
       // for (const h of handles) {
       //   const marked = await h.evaluate(
-      //     (node, stamp) => node.hasAttribute(stamp),  // 把 stamp 当参数传进去
-      //     STAMP                                       // 这里把 STAMP 传给上面的 stamp
+      //     (node, stamp) => node.hasAttribute(stamp),  // pass stamp as an argument
+      //     STAMP                                       // pass STAMP to the above stamp
       //   );
       // }
 
@@ -204,15 +205,13 @@ async function crawl(page, path, viewHashes, outputs, depth = 0) {
 
       // if (!handle) continue;                             // might disappear
 
-      if (popup) {
-        await crawl(popup, path, viewHashes, outputs, depth + 1);
-        await popup.close();
-      } else if (navigated) {
-        await crawl(page, path, viewHashes, outputs, depth + 1);
-        // backtrack
-        try { await page.goBack({ waitUntil: 'domcontentloaded',
-                                  timeout: NAV_WAIT }); }
-        catch {/* ignore */}
+      if (navigated) {
+        page.close();
+        // await crawl(page, path, viewHashes, outputs, depth + 1);
+        // // backtrack
+        // try { await page.goBack({ waitUntil: 'domcontentloaded',
+        //                           timeout: NAV_WAIT }); }
+        // catch {/* ignore */}
       } else {
         // DOM mutated but URL unchanged – stay and recurse
         await crawl(page, path, viewHashes, outputs, depth + 1);
@@ -226,16 +225,14 @@ async function crawl(page, path, viewHashes, outputs, depth = 0) {
 (async () => {
   const { browser, page } = await initMetaMask();
   const outputs = [];                  // {path:[], selector:''}
-  
+  var selectors = await getButtonSelectors(page);
+  console.log(selectors);
   await crawl(page, [], new Set(), outputs);
 
   console.log('\n─ Inputs discovered ─');
   outputs.forEach((o, i) => {
     console.log(`#${i + 1}`, o.path.join(' → '), '⇒', o.selector);
   });
-
-  // optional: persist JSON
-  // await fs.writeFile('input-paths.json', JSON.stringify(outputs, null, 2));
 
   await browser.disconnect();          // leave Chrome alive for next run
 })();
