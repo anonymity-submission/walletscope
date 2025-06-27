@@ -35,6 +35,16 @@ async function depthOf(el) {
   ));
 }
 
+async function cancleButton(clickList) {
+  for (const el of clickList) {
+    const txt = await labelOf(el);
+    if (txt === "Cancel" || txt === "Close" || txt === "Back" || txt === "Back to Home") {
+      return el;
+    }
+  }
+  return null;
+}
+
 async function getLists(handles, depthAttr) {
   const clickArrayHandle  = await handles.getProperty('clickList');
   const inputArrayHandle  = await handles.getProperty('inputList');
@@ -171,7 +181,7 @@ async function subsearch(browser, globalGraph, path, toClick, toInput, depth=0, 
     if (txt === "Confirm") {
       break;
     }
-    if (txt === "Close") {
+    if (txt === "Close" || txt === "Back" || txt === "Back to Home") {
       continue;
     }
     if (txt !== "Swap" && depth === 1) {
@@ -213,19 +223,24 @@ async function subsearch(browser, globalGraph, path, toClick, toInput, depth=0, 
       eleDepthList: newEleDepthList
     } = await getLists(newHandles, depthAttr);
 
-    console.log(newClickList)
+
+    // console.log(newClickList)
     
     if (newClickList.length === 0) {
       //it means it page returns to the previous page.
       console.log('[✓] no more new clicks – stopping, [ depth:', depth, ']');
       const txt = await labelOf(currentEl);
 
-      // click the ele at the current depth
-      
-
       console.log(`   → clicking: [${txt}]`);
       await currentEl.click();
-      
+
+      // await currentEl.click();
+      // const cancleEl = await cancleButton(newClickList);
+      // if (cancleEl) {
+      //   await cancleEl.click();
+      // } else {
+      // }
+
       await new Promise(resolve => setTimeout(resolve, 2000));
 
     } else if (depth > 3 && newInputList.length === 0) {
