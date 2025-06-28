@@ -15,51 +15,51 @@ class MetamaskCrawler {
         this.waitTime = 1000;
         this.processed = new Set();
     }
-    // 检查并处理新打开的页面
+    // check if there are new pages and close them
     async handleNewPages() {
         try {
             const allPages = await this.browser.pages();
             const newPages = allPages.filter(page => page !== this.originalPage);
 
             if (newPages.length > 0) {
-                console.log(`检测到 ${newPages.length} 个新页面，准备关闭...`);
+                console.log(`Found ${newPages.length} new pages, closing...`);
 
-                // 关闭所有新页面
+                // close all new pages
                 for (const newPage of newPages) {
                     try {
                         const url = newPage.url();
-                        console.log(`关闭新页面: ${url}`);
+                        console.log(`Closing new page: ${url}`);
                         await newPage.close();
                     } catch (error) {
-                        console.log('关闭页面失败:', error.message);
+                        console.log('Failed to close page:', error.message);
                     }
                 }
 
-                // 确保焦点回到原始页面
+                // bring the original page to the front
                 await this.originalPage.bringToFront();
                 await new Promise(resolve => setTimeout(resolve, 500));
 
-                console.log('已关闭所有新页面，焦点返回原页面');
+                console.log('All new pages closed, focus returned to original page');
                 return true;
             }
 
             return false;
         } catch (error) {
-            console.log('处理新页面时出错:', error.message);
+            console.log('Error handling new pages:', error.message);
             return false;
         }
     }
 
-    // 检查是否有弹窗并关闭
+    // check for popups and close them
     async handlePopups() {
         try {
-            // 检查是否有JavaScript弹窗
+            // check for JavaScript popups
             this.page.on('dialog', async dialog => {
-                console.log('检测到弹窗:', dialog.message());
+                console.log('Detected popup:', dialog.message());
                 await dialog.dismiss();
             });
 
-            // 检查是否有模态框或覆盖层
+            // check for modals or overlays
             const modals = await this.page.$$('.modal, .overlay, .popup, [role="dialog"]');
             for (const modal of modals) {
                 try {
@@ -69,39 +69,39 @@ class MetamaskCrawler {
                     }, modal);
 
                     if (isVisible) {
-                        // 尝试点击关闭按钮
+                        // try to click the close button
                         const closeButton = await modal.$('.close, .modal-close, [data-dismiss="modal"], .fa-times');
                         if (closeButton) {
                             await closeButton.click();
-                            console.log('关闭了模态框');
+                            console.log('Closed modal');
                         } else {
-                            // 如果没有关闭按钮，按ESC键
+                            // if no close button, press ESC
                             await this.page.keyboard.press('Escape');
                         }
                     }
                 } catch (error) {
-                    console.log('处理模态框失败:', error.message);
+                    console.log('Failed to close modal:', error.message);
                 }
             }
         } catch (error) {
-            console.log('处理弹窗失败:', error.message);
+            console.log('Failed to handle popups:', error.message);
         }
     }
-    // 改进后的获取页面唯一标识符方法
+    // improved page signature method
     async getPageSignature() {
         return await this.page.evaluate(() => {
-            // 1. 统计各种元素的数量和属性
+            // 1. count and properties of various elements
             const buttons = document.querySelectorAll('button, [role="button"], .button');
             const inputs = document.querySelectorAll('input, textarea, [contenteditable="true"]');
             const links = document.querySelectorAll('a[href]');
             const selects = document.querySelectorAll('select');
             const clickableElements = document.querySelectorAll('[onclick], [role="button"], button, a[href]');
             
-            // 2. 获取可见元素的详细信息
+            // 2. get detailed information of visible elements
             function getVisibleElementsSignature() {
                 const visibleElements = [];
                 
-                // 获取所有可能交互的元素
+                // get all possible interactive elements
                 const interactiveSelectors = [
                     'button', '[role="button"]', 'a[href]', 'input', 'select', 'textarea',
                     '[onclick]', '[tabindex]', '.clickable', '.menu-item', '.account-list-item'
@@ -114,7 +114,7 @@ class MetamaskCrawler {
                             const style = window.getComputedStyle(el);
                             const rect = el.getBoundingClientRect();
                             
-                            // 只考虑可见元素
+                            // only consider visible elements
                             if (style.display !== 'none' && 
                                 style.visibility !== 'hidden' && 
                                 style.opacity !== '0' &&
@@ -128,7 +128,7 @@ class MetamaskCrawler {
                                     type: el.type || '',
                                     disabled: el.disabled || false,
                                     position: {
-                                        x: Math.round(rect.left / 10) * 10, // 减少精度避免微小移动
+                                        x: Math.round(rect.left / 10) * 10, // reduce precision to avoid small movements
                                         y: Math.round(rect.top / 10) * 10,
                                         w: Math.round(rect.width / 10) * 10,
                                         h: Math.round(rect.height / 10) * 10
@@ -137,18 +137,18 @@ class MetamaskCrawler {
                             }
                         });
                     } catch (e) {
-                        // 忽略错误的选择器
+                        // ignore selector errors
                     }
                 });
                 
                 return visibleElements;
             }
             
-            // 3. 获取页面结构特征
+            // 3. get page structure features
             function getPageStructure() {
                 const structure = {};
                 
-                // 统计各种类型的可见元素数量
+                // count the number of visible elements of each type
                 const elementTypes = ['BUTTON', 'INPUT', 'A', 'SELECT', 'TEXTAREA', 'DIV', 'SPAN'];
                 elementTypes.forEach(type => {
                     const elements = document.querySelectorAll(type.toLowerCase());
@@ -166,7 +166,7 @@ class MetamaskCrawler {
                 return structure;
             }
             
-            // 4. 获取特定类名的元素（Metamask特有的）
+            // 4. get elements with specific class names (Metamask specific)
             function getMetamaskSpecificElements() {
                 const metamaskSelectors = [
                     '.account-list-item',
@@ -205,7 +205,7 @@ class MetamaskCrawler {
                         
                         metamaskElements[selector] = {
                             count: visibleCount,
-                            texts: texts.slice(0, 5) // 只保留前5个文本
+                            texts: texts.slice(0, 5) // only keep the first 5 texts
                         };
                     } catch (e) {
                         metamaskElements[selector] = { count: 0, texts: [] };
@@ -215,7 +215,7 @@ class MetamaskCrawler {
                 return metamaskElements;
             }
             
-            // 5. 获取文本内容特征
+            // 5. get text content features
             function getTextSignature() {
                 const textElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, div, button, a');
                 const significantTexts = [];
@@ -226,18 +226,18 @@ class MetamaskCrawler {
                         const style = window.getComputedStyle(el);
                         const rect = el.getBoundingClientRect();
                         
-                        // 只考虑可见的文本
+                        // only consider visible text
                         if (style.display !== 'none' && rect.width > 0 && rect.height > 0) {
                             significantTexts.push(text);
                         }
                     }
                 });
                 
-                // 对文本进行排序以确保一致性，然后取前20个
+                // sort the text to ensure consistency, then take the first 20
                 return significantTexts.sort().slice(0, 20);
             }
             
-            // 6. 获取表单状态
+            // 6. get form state
             function getFormSignature() {
                 const forms = document.querySelectorAll('form');
                 const formStates = [];
@@ -250,7 +250,7 @@ class MetamaskCrawler {
                     };
                     
                     inputs.forEach(input => {
-                        if (input.type !== 'password') { // 不记录密码
+                        if (input.type !== 'password') { // do not record passwords
                             formState.values.push({
                                 type: input.type || input.tagName.toLowerCase(),
                                 name: input.name || '',
@@ -266,7 +266,7 @@ class MetamaskCrawler {
                 return formStates;
             }
             
-            // 7. 生成综合签名
+            // 7. generate comprehensive signature
             const visibleElements = getVisibleElementsSignature();
             const pageStructure = getPageStructure();
             const metamaskElements = getMetamaskSpecificElements();
@@ -274,7 +274,7 @@ class MetamaskCrawler {
             const formSignature = getFormSignature();
             
             const signature = {
-                // 基础计数
+                // basic counts
                 counts: {
                     buttons: buttons.length,
                     inputs: inputs.length,
@@ -283,40 +283,40 @@ class MetamaskCrawler {
                     clickable: clickableElements.length
                 },
                 
-                // 页面结构
+                // page structure
                 structure: pageStructure,
                 
-                // 可见元素特征（生成哈希以减少数据量）
+                // visible elements features (generate hash to reduce data)
                 visibleElementsHash: JSON.stringify(visibleElements).substring(0, 500),
                 
-                // Metamask特定元素
+                // Metamask specific elements
                 metamask: metamaskElements,
                 
-                // 文本特征
+                // text features
                 textHash: textSignature.join('|').substring(0, 300),
                 
-                // 表单状态
+                // form state
                 forms: formSignature,
                 
-                // URL和标题
+                // URL and title
                 url: window.location.href,
                 title: document.title,
                 
-                // 时间戳（用于调试）
+                // timestamp (for debugging)
                 timestamp: Date.now()
             };
             
-            // 生成最终的签名字符串
+            // generate the final signature string
             const finalSignature = JSON.stringify(signature);
             
-            // 如果签名太长，生成哈希
+            // if the signature is too long, generate a hash
             if (finalSignature.length > 2000) {
-                // 简单的哈希函数
+                // simple hash function
                 let hash = 0;
                 for (let i = 0; i < finalSignature.length; i++) {
                     const char = finalSignature.charCodeAt(i);
                     hash = ((hash << 5) - hash) + char;
-                    hash = hash & hash; // 转换为32位整数
+                    hash = hash & hash; // convert to 32-bit integer
                 }
                 return hash.toString() + '_' + finalSignature.substring(0, 1000);
             }
@@ -324,7 +324,7 @@ class MetamaskCrawler {
             return finalSignature;
         });
     }
-    // 识别可点击的元素
+    // identify clickable elements
     async getClickableElements() {
         return await this.page.evaluate(() => {
             const selectors = [
@@ -337,7 +337,7 @@ class MetamaskCrawler {
                 'input[type="button"]:not([disabled])',
                 '[tabindex]:not([tabindex="-1"]):not([disabled])',
                 '.clickable:not([disabled])',
-                // Metamask特定选择器
+                // Metamask specific selectors
                 '.account-list-item',
                 '.network-dropdown-button',
                 '.menu-item',
@@ -421,7 +421,7 @@ class MetamaskCrawler {
                         }
                     });
                 } catch (e) {
-                    console.log(`选择器错误: ${selector}`, e);
+                    console.log(`Selector error: ${selector}`, e);
                 }
             });
 
@@ -429,7 +429,7 @@ class MetamaskCrawler {
         });
     }
 
-    // 识别可输入的元素
+    // identify input elements
     async getInputElements() {
         return await this.page.evaluate(() => {
             const selectors = [
@@ -437,7 +437,7 @@ class MetamaskCrawler {
                 'textarea:not([disabled])',
                 '[contenteditable="true"]:not([disabled])',
                 'select:not([disabled])',
-                // Metamask特定输入元素
+                // Metamask specific input elements
                 '.unit-input__input',
                 '.send-v2__form-field input',
                 '.import-account__input',
@@ -519,14 +519,14 @@ class MetamaskCrawler {
                         }
                     });
                 } catch (e) {
-                    console.log(`输入选择器错误: ${selector}`, e);
+                    console.log(`Input selector error: ${selector}`, e);
                 }
             });
 
             return elements;
         });
     }
-    // 智能元素定位 (保持之前的代码)
+    // smart element location (keep the previous code)
     async findElement(elementInfo) {
         try {
             if (elementInfo.id) {
@@ -534,7 +534,7 @@ class MetamaskCrawler {
                     const element = await this.page.$(`#${elementInfo.id}`);
                     if (element) return element;
                 } catch (e) {
-                    // 继续尝试其他方法
+                    // continue trying other methods
                 }
             }
 
@@ -552,7 +552,7 @@ class MetamaskCrawler {
                         }
                     }
                 } catch (e) {
-                    // 继续尝试其他方法
+                    // continue trying other methods
                 }
             }
 
@@ -565,7 +565,7 @@ class MetamaskCrawler {
                         if (element) return element;
                     }
                 } catch (e) {
-                    // 继续尝试其他方法
+                    // continue trying other methods
                 }
             }
 
@@ -584,85 +584,85 @@ class MetamaskCrawler {
                         }
                     }
                 } catch (e) {
-                    // 最后的尝试失败
+                    // last attempt failed
                 }
             }
 
             return null;
         } catch (error) {
-            console.log('元素定位失败:', error.message);
+            console.log('Element location failed:', error.message);
             return null;
         }
     }
 
-     // 修改后的点击元素方法 - 添加了新页面处理
+     // modified click element method - added new page handling
      async clickElement(elementInfo) {
         try {
-            console.log('尝试点击元素:', elementInfo.text || elementInfo.tagName);
+            console.log('Trying to click element:', elementInfo.text || elementInfo.tagName);
             
-            // 记录点击前的页面数量
+            // record the number of pages before clicking
             const pagesBefore = await this.browser.pages();
             const pagesCountBefore = pagesBefore.length;
             
             const element = await this.findElement(elementInfo);
             
             if (element) {
-                // 滚动到元素可见
+                // scroll to the element visible
                 await element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 await new Promise(resolve => setTimeout(resolve, 300));
                 
-                // 确保元素在视口内
+                // ensure the element is in the viewport
                 await this.page.evaluate(el => {
                     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, element);
                 await new Promise(resolve => setTimeout(resolve, 300));
                 
-                // 点击元素
+                // click the element
                 await element.click();
                 
-                // 等待一小段时间让新页面有时间打开
+                // wait for a short time to allow the new page to open
                 await new Promise(resolve => setTimeout(resolve, 800));
                 
-                // 检查是否有新页面打开
+                // check if there are new pages opened
                 const pagesAfter = await this.browser.pages();
                 const pagesCountAfter = pagesAfter.length;
                 
                 if (pagesCountAfter > pagesCountBefore) {
-                    console.log(`检测到新页面打开 (${pagesCountBefore} -> ${pagesCountAfter})`);
+                    console.log(`New pages opened (${pagesCountBefore} -> ${pagesCountAfter})`);
                     await this.handleNewPages();
                 }
                 
-                // 处理可能的弹窗
+                // handle possible popups
                 // await this.handlePopups();
                 
-                // 确保我们仍在原始页面上
+                // ensure we are still on the original page
                 await this.originalPage.bringToFront();
                 
-                // 最终等待
+                // final wait
                 await new Promise(resolve => setTimeout(resolve, this.waitTime - 800));
                 
                 return true;
             } else {
-                console.log('无法定位元素:', elementInfo.text || elementInfo.tagName);
+                console.log('Cannot locate element:', elementInfo.text || elementInfo.tagName);
                 return false;
             }
             
         } catch (error) {
-            console.log('点击失败:', error.message);
+            console.log('Click failed:', error.message);
             
-            // 即使出错也要检查新页面
+            // even if there is an error, check for new pages
             try {
                 await this.handleNewPages();
                 await this.originalPage.bringToFront();
             } catch (e) {
-                console.log('错误恢复失败:', e.message);
+                console.log('Error recovery failed:', e.message);
             }
             
             return false;
         }
     }
 
-    // 记录输入元素及其路径
+    // record input elements and their paths
     recordInputElement(elementInfo) {
         const fullInfo = {
             ...elementInfo,
@@ -673,7 +673,7 @@ class MetamaskCrawler {
         if (!this.processed.has(elementInfo.signature)) {
             this.inputElements.push(fullInfo);
             this.processed.add(elementInfo.signature);
-            console.log('发现输入元素:', {
+            console.log('Found input element:', {
                 path: fullInfo.path,
                 type: fullInfo.type,
                 triggerPath: fullInfo.triggerPath.map(p => p.text || p.tagName)
@@ -681,14 +681,14 @@ class MetamaskCrawler {
         }
     }
 
-    // 尝试返回上一状态
+    // attempt to return to the previous state
     async attemptNavigation() {
         try {
-            // 尝试按ESC键
+            // try to press ESC
             await this.page.keyboard.press('Escape');
             await new Promise(resolve => setTimeout(resolve, 500));
             
-            // 尝试点击返回按钮
+            // try to click the back button
             const backSelectors = [
                 '[data-testid="back-button"]',
                 '.back-button',
@@ -707,48 +707,48 @@ class MetamaskCrawler {
                         break;
                     }
                 } catch (e) {
-                    // 继续尝试下一个选择器
+                    // continue trying the next selector
                 }
             }
         } catch (error) {
-            console.log('导航失败:', error.message);
+            console.log('Navigation failed:', error.message);
         }
     }
 
-    // 主要的爬取逻辑
+    // main crawling logic
     async crawl(depth = 0) {
         if (depth >= this.maxDepth) {
-            console.log('达到最大深度，停止爬取');
+            console.log('Reached max depth, stopping crawl');
             return;
         }
 
-        // 等待页面稳定
+        // wait for the page to stabilize
         await new Promise(resolve => setTimeout(resolve, this.waitTime));
 
         const pageSignature = await this.getPageSignature();
         if (this.visitedStates.has(pageSignature)) {
-            console.log('页面已访问过，跳过');
+            console.log('Page already visited, skipping');
             return;
         }
         
         this.visitedStates.add(pageSignature);
-        console.log(`爬取深度 ${depth}, 当前页面已记录`);
+        console.log(`Crawl depth ${depth}, current page recorded`);
 
-        // 记录当前页面的所有输入元素
+        // record all input elements on the current page
         const inputElements = await this.getInputElements();
         inputElements.forEach(element => {
             this.recordInputElement(element);
         });
 
-        // 获取可点击元素
+        // get clickable elements
         const clickableElements = await this.getClickableElements();
-        console.log(`找到 ${clickableElements.length} 个可点击元素，${inputElements.length} 个输入元素`);
+        console.log(`Found ${clickableElements.length} clickable elements, ${inputElements.length} input elements`);
 
-        // 点击每个可点击元素
+        // click each clickable element
         for (let i = 0; i < clickableElements.length; i++) {
             const element = clickableElements[i];
             
-            // 添加到当前路径
+            // add to the current path
             this.currentPath.push({
                 text: element.text,
                 tagName: element.tagName,
@@ -764,23 +764,23 @@ class MetamaskCrawler {
                 }
                 const success = await this.clickElement(element);
                 if (success) {
-                    // 递归爬取新状态
+                    // recursive crawl of new state
                     await this.crawl(depth + 1);
                 }
                 
             } catch (error) {
-                console.log('处理元素时出错:', error.message);
+                console.log('Error handling element:', error.message);
             } finally {
-                // 移除当前步骤
+                // remove the current step
                 this.currentPath.pop();
                 
-                // 尝试返回上一状态
+                // attempt to return to the previous state
                 await this.attemptNavigation();
             }
         }
     }
 
-    // 生成报告
+    // generate report
     generateReport() {
         const report = {
             totalInputElements: this.inputElements.length,
@@ -804,26 +804,26 @@ class MetamaskCrawler {
             }
         };
         
-        console.log('=== 爬取报告 ===');
+        console.log('=== Crawl report ===');
         console.log(JSON.stringify(report, null, 2));
         
         return report;
     }
 
-    // 启动爬取
+    // start crawling
     async start() {
-        console.log('开始爬取 Metamask 插件...');
+        console.log('Starting to crawl Metamask extension...');
         try {
             await this.crawl();
             return this.generateReport();
         } catch (error) {
-            console.error('爬取过程中出现错误:', error);
+            console.error('Error during crawling:', error);
             return this.generateReport();
         }
     }
 }
 
-// 主函数 - 启动Metamask爬取
+// main function - start Metamask crawling
 async function startMetamaskCrawling(options = {}) {
     const {
         maxDepth = 8,
@@ -834,15 +834,15 @@ async function startMetamaskCrawling(options = {}) {
         const {browser, metamaskPage} = await initMetaMask();
         // console.log('metamaskPage', metamaskPage);
 
-        // 等待页面加载
+        // wait for the page to load
         await new Promise(resolve => setTimeout(resolve, 3_000));
 
-        // 创建爬虫实例
+        // create crawler instance
         const crawler = new MetamaskCrawler(browser, metamaskPage);
         crawler.maxDepth = maxDepth;
         crawler.waitTime = waitTime;
 
-        // 开始爬取
+        // start crawling
         const report = await crawler.start();
 
         return {
@@ -852,31 +852,31 @@ async function startMetamaskCrawling(options = {}) {
         };
 
     } catch (error) {
-        console.error('启动失败:', error);
+        console.error('Startup failed:', error);
         await browser.close();
         throw error;
     }
 }
 
-// 使用示例
+// example usage
 async function main() {
     try {
         const result = await startMetamaskCrawling({
-            headless: false,  // 设置为true可以无头模式运行
+            headless: false,  // set to true for headless mode
             maxDepth: 6,
             waitTime: 1000
         });
 
-        console.log('爬取完成！');
-        console.log('报告:', result.report);
+        console.log('Crawling completed!');
+        console.log('Report:', result.report);
 
-        // 保持浏览器打开以便检查结果
+        // keep the browser open to check the results
         // await result.browser.close();
 
     } catch (error) {
-        console.error('程序执行失败:', error);
+        console.error('Program execution failed:', error);
     }
 }
 
-// 导出
+// export
 export { MetamaskCrawler, startMetamaskCrawling };

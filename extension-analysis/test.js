@@ -6,7 +6,7 @@ async function main() {
     // const {browser, page} = await initMetaMask();
     // await new Promise(resolve => setTimeout(resolve, 5_000));
     const result = await startMetamaskCrawling({
-        headless: false,  // 设置为true可以无头模式运行
+        headless: false,  
         maxDepth: 6,
         waitTime: 1000
     });

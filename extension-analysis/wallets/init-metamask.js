@@ -11,13 +11,12 @@ const EXT_PATH = "sources/metamask-chrome-12.18.2";
 const EXT_ID   = 'gfbcggkpcdpiiihmopfbhabfeabcccaf'; // MetaMask ID
 
 const SEED_PHRASE = process.env.SEED_PHRASE;
-const PASSWORD = process.env.PASS_WORD;                  // ✔ 8+ chars + 符号，生产环境请安全存储
-const NETWORK  = 'Ethereum Mainnet';                 // 可选，下面示例默认主网
+const PASSWORD = process.env.PASS_WORD;                 
 
-/* ---------- 1. 启动包含扩展的 Chrome ---------- */
+
 async function launchWithMetaMask () {
   return puppeteer.launch({
-    headless: false,                              // 扩展只能非 headless
+    headless: false,                              
     defaultViewport: null,
     args: [
       `--remote-debugging-port=9222`,
