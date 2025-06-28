@@ -1,5 +1,6 @@
 class MetamaskCrawler {
-    constructor() {
+    constructor(page) {
+        this.page = page;
         this.visitedStates = new Set();
         this.inputElements = [];
         this.currentPath = [];
@@ -9,16 +10,18 @@ class MetamaskCrawler {
     }
 
     // get the signature of the page
-    getPageSignature() {
-        const buttons = document.querySelectorAll('button, [role="button"], .button');
-        const inputs = document.querySelectorAll('input, textarea, [contenteditable="true"]');
-        const texts = Array.from(document.querySelectorAll('*')).map(el => el.textContent?.trim()).filter(Boolean);
-        
-        return JSON.stringify({
-            buttonCount: buttons.length,
-            inputCount: inputs.length,
-            textHash: texts.join('').substring(0, 200),
-            url: window.location.href
+    async getPageSignature() {
+        return await this.page.evaluate(() => {
+            const buttons = document.querySelectorAll('button, [role="button"], .button');
+            const inputs = document.querySelectorAll('input, textarea, [contenteditable="true"]');
+            const texts = Array.from(document.querySelectorAll('*')).map(el => el.textContent?.trim()).filter(Boolean);
+            
+            return JSON.stringify({
+                buttonCount: buttons.length,
+                inputCount: inputs.length,
+                textHash: texts.join('').substring(0, 200),
+                url: window.location.href
+            });
         });
     }
 
@@ -362,21 +365,21 @@ class MetamaskCrawler {
 }
 
 // example usage
-async function startMetamaskCrawling() {
-    const crawler = new MetamaskCrawler();
+async function startMetamaskCrawling(page) {
+    const crawler = new MetamaskCrawler(page);
     
-    // can adjust the parameters
-    crawler.maxDepth = 8;  // maximum crawling depth
-    crawler.waitTime = 1500;  // wait time for each page
+    crawler.maxDepth = 8;
+    crawler.waitTime = 1500;
     
     const report = await crawler.start();
-    
-    // save the result to the global variable for checking
-    window.metamaskCrawlReport = report;
-    
+    await page.evaluate((data) => {
+        window.metamaskCrawlReport = data;
+    }, report);
+
     console.log('Crawling finished! Result saved to window.metamaskCrawlReport');
     return report;
 }
+
 
 // automatically start (if needed)
 if (typeof window !== 'undefined') {
@@ -390,7 +393,4 @@ if (typeof window !== 'undefined') {
     }
 }
 
-// export for external use
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { MetamaskCrawler, startMetamaskCrawling };
-}
+export { MetamaskCrawler, startMetamaskCrawling };

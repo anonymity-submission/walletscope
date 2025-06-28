@@ -1,15 +1,18 @@
 import puppeteer from 'puppeteer';
 import { initMetaMask } from './wallets/init-metamask.js';
-import { MetamaskCrawler, startMetamaskCrawling } from './crawl.js';
+import { startMetamaskCrawling } from './crawler.js';
 
 async function main() {
-    const {browser, page} = await initMetaMask();
-    await new Promise(resolve => setTimeout(resolve, 5_000));
-    await startMetamaskCrawling(browser, page, [], 0);
-  
-    /* MAIN LOOP ------------------------------------------------------- */
-  
-    console.log(`Finished – total clicks: ${clicks}`);
-    // await browser.close();
-  }
+    // const {browser, page} = await initMetaMask();
+    // await new Promise(resolve => setTimeout(resolve, 5_000));
+    const result = await startMetamaskCrawling({
+        headless: false,  // 设置为true可以无头模式运行
+        maxDepth: 6,
+        waitTime: 1000
+    });
+    console.log(result);
+    await result.browser.close();
+}
+
+main().catch(console.error);
 

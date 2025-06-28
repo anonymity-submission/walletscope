@@ -104,13 +104,13 @@ async function setupMetaMask (page) {
 
 async function initMetaMask() {
   const browser = await launchWithMetaMask();
-  const mmPage = await getMetamaskPage(browser);
+  const page = await getMetamaskPage(browser);
   await new Promise(resolve => setTimeout(resolve, 300));
   
-  await setupMetaMask(mmPage);
+  await setupMetaMask(page);
 
   console.log('🎉 MetaMask setup completed!');
-  return {browser, page: mmPage};
+  return {browser, metamaskPage: page};
 }
 
 export { initMetaMask };
